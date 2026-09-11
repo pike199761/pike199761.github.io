@@ -1,0 +1,135 @@
+<svg width="1600" height="1000" viewBox="0 0 1600 1000" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="table" x1="110" y1="50" x2="1490" y2="960" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#343330"/>
+      <stop offset="0.48" stop-color="#242422"/>
+      <stop offset="1" stop-color="#151515"/>
+    </linearGradient>
+    <linearGradient id="light" x1="180" y1="40" x2="1220" y2="860" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFF5DD" stop-opacity=".42"/>
+      <stop offset=".5" stop-color="#F4C58C" stop-opacity=".09"/>
+      <stop offset="1" stop-color="#E86A2A" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="paperLeft" x1="904" y1="367" x2="1057" y2="858" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FBF8EF"/>
+      <stop offset=".64" stop-color="#E8E2D6"/>
+      <stop offset="1" stop-color="#CBC3B4"/>
+    </linearGradient>
+    <linearGradient id="paperRight" x1="1112" y1="354" x2="1390" y2="812" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#F7F3E8"/>
+      <stop offset=".72" stop-color="#DDD6C9"/>
+      <stop offset="1" stop-color="#BEB5A6"/>
+    </linearGradient>
+    <linearGradient id="glass" x1="1194" y1="166" x2="1508" y2="539" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#4B4E4C" stop-opacity=".9"/>
+      <stop offset=".38" stop-color="#1D201F" stop-opacity=".93"/>
+      <stop offset="1" stop-color="#080909"/>
+    </linearGradient>
+    <radialGradient id="sphere" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(1369 608) rotate(133) scale(247)">
+      <stop stop-color="#A4A39D"/>
+      <stop offset=".22" stop-color="#5B5C59"/>
+      <stop offset=".61" stop-color="#242522"/>
+      <stop offset="1" stop-color="#090A09"/>
+    </radialGradient>
+    <linearGradient id="orange" x1="1086" y1="622" x2="1247" y2="781" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#F48A51"/>
+      <stop offset=".45" stop-color="#E86A2A"/>
+      <stop offset="1" stop-color="#A83D15"/>
+    </linearGradient>
+    <filter id="shadowSoft" x="-40%" y="-40%" width="180%" height="210%">
+      <feDropShadow dx="12" dy="38" stdDeviation="34" flood-color="#000" flood-opacity=".42"/>
+    </filter>
+    <filter id="shadowLong" x="-80%" y="-80%" width="260%" height="260%">
+      <feGaussianBlur stdDeviation="28"/>
+    </filter>
+    <filter id="blur36" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="36"/>
+    </filter>
+    <filter id="paperTexture" x="0" y="0" width="100%" height="100%">
+      <feTurbulence type="fractalNoise" baseFrequency=".48" numOctaves="4" seed="41" result="noise"/>
+      <feColorMatrix in="noise" type="saturate" values="0"/>
+      <feComponentTransfer><feFuncA type="table" tableValues="0 .055"/></feComponentTransfer>
+    </filter>
+    <filter id="grain" x="0" y="0" width="100%" height="100%">
+      <feTurbulence type="fractalNoise" baseFrequency=".75" numOctaves="3" seed="13"/>
+      <feColorMatrix type="saturate" values="0"/>
+      <feComponentTransfer><feFuncA type="table" tableValues="0 .042"/></feComponentTransfer>
+    </filter>
+    <clipPath id="frame"><rect width="1600" height="1000" rx="42"/></clipPath>
+    <clipPath id="sphereClip"><rect x="1160" y="405" width="440" height="500"/></clipPath>
+  </defs>
+
+  <g clip-path="url(#frame)">
+    <rect width="1600" height="1000" fill="url(#table)"/>
+    <rect width="1600" height="1000" fill="url(#light)"/>
+
+    <!-- quiet left field -->
+    <path d="M0 0H714L1087 1000H0V0Z" fill="#ECE0C5" fill-opacity=".025"/>
+    <path d="M0 108L915 1000" stroke="#FFF3DA" stroke-opacity=".028" stroke-width="220"/>
+    <ellipse cx="360" cy="930" rx="470" ry="90" fill="#020202" fill-opacity=".2" filter="url(#blur36)"/>
+
+    <!-- long afternoon shadows -->
+    <path d="M1064 408L336 1000H620L1218 456L1064 408Z" fill="#050505" fill-opacity=".38" filter="url(#shadowLong)"/>
+    <path d="M1320 318L871 1000H1170L1460 360L1320 318Z" fill="#070707" fill-opacity=".38" filter="url(#shadowLong)"/>
+
+    <!-- smoked glass slab -->
+    <g transform="rotate(-8 1342 337)" filter="url(#shadowSoft)">
+      <rect x="1180" y="142" width="344" height="390" rx="28" fill="url(#glass)" stroke="#929690" stroke-opacity=".16" stroke-width="2"/>
+      <rect x="1199" y="160" width="306" height="354" rx="20" stroke="#F0EEE7" stroke-opacity=".08"/>
+      <path d="M1206 189L1484 477" stroke="#F7F2E8" stroke-opacity=".09" stroke-width="5"/>
+    </g>
+
+    <!-- half-open magazine -->
+    <g filter="url(#shadowSoft)">
+      <path d="M797 393C894 351 1002 344 1104 371L1127 826C1012 796 918 803 827 845L797 393Z" fill="url(#paperLeft)"/>
+      <path d="M1104 371C1211 327 1344 342 1467 390L1415 845C1304 803 1210 789 1127 826L1104 371Z" fill="url(#paperRight)"/>
+      <path d="M1104 371C1115 494 1122 684 1127 826" stroke="#9D9587" stroke-opacity=".62" stroke-width="3"/>
+      <path d="M1110 382C1098 530 1103 680 1127 826" stroke="#FFFDF6" stroke-opacity=".68" stroke-width="2"/>
+      <path d="M829 432C900 399 980 394 1050 407" stroke="#9E978B" stroke-opacity=".26"/>
+      <path d="M845 458C916 429 985 426 1046 437" stroke="#9E978B" stroke-opacity=".18"/>
+      <path d="M1180 422C1262 399 1341 413 1418 444" stroke="#918A7F" stroke-opacity=".22"/>
+      <path d="M1182 451C1265 430 1336 443 1403 469" stroke="#918A7F" stroke-opacity=".16"/>
+      <path d="M797 393C812 515 817 690 827 845" stroke="#FFFDF5" stroke-opacity=".26" stroke-width="3"/>
+      <path d="M1467 390C1450 527 1434 686 1415 845" stroke="#8A8175" stroke-opacity=".24" stroke-width="3"/>
+      <g opacity=".5" filter="url(#paperTexture)">
+        <path d="M797 393C894 351 1002 344 1104 371L1127 826C1012 796 918 803 827 845L797 393Z" fill="#000"/>
+        <path d="M1104 371C1211 327 1344 342 1467 390L1415 845C1304 803 1210 789 1127 826L1104 371Z" fill="#000"/>
+      </g>
+    </g>
+
+    <!-- curled loose sheet -->
+    <g transform="rotate(7 982 585)" filter="url(#shadowSoft)">
+      <path d="M866 468C939 444 1024 449 1087 481L1054 698C988 673 924 671 856 694L866 468Z" fill="#F4F0E6"/>
+      <path d="M866 468C884 484 896 506 895 534C887 507 875 490 866 486V468Z" fill="#CFC6B7"/>
+      <path d="M873 493C930 475 997 477 1054 500" stroke="#AAA397" stroke-opacity=".16"/>
+      <path d="M871 520C929 501 994 505 1050 526" stroke="#AAA397" stroke-opacity=".12"/>
+    </g>
+
+    <!-- orange bookmark: small visual anchor -->
+    <g transform="rotate(-12 1162 702)" filter="url(#shadowSoft)">
+      <rect x="1094" y="614" width="136" height="176" rx="20" fill="url(#orange)"/>
+      <path d="M1112 633H1210" stroke="#FFD0B6" stroke-opacity=".38" stroke-width="2"/>
+      <path d="M1110 641L1196 772" stroke="#FFB78E" stroke-opacity=".11" stroke-width="20"/>
+    </g>
+
+    <!-- partial sphere -->
+    <g clip-path="url(#sphereClip)" filter="url(#shadowSoft)">
+      <circle cx="1452" cy="674" r="226" fill="url(#sphere)"/>
+      <ellipse cx="1375" cy="588" rx="86" ry="41" transform="rotate(-38 1375 588)" fill="#D6D4CB" fill-opacity=".14" filter="url(#blur36)"/>
+      <path d="M1291 746C1367 827 1496 872 1606 831" stroke="#C4C4BC" stroke-opacity=".1" stroke-width="3"/>
+    </g>
+
+    <!-- metal edge entering frame -->
+    <g transform="rotate(-20 1485 925)">
+      <rect x="1280" y="899" width="470" height="38" rx="19" fill="#898B87" fill-opacity=".52"/>
+      <rect x="1280" y="899" width="470" height="7" rx="3.5" fill="#E5E3DB" fill-opacity=".28"/>
+    </g>
+
+    <!-- light catching objects -->
+    <path d="M686 0L1250 1000H1510L910 0H686Z" fill="#FAD9AA" fill-opacity=".035"/>
+    <path d="M720 0L1266 1000" stroke="#FFF0D5" stroke-opacity=".045" stroke-width="74"/>
+
+    <rect width="1600" height="1000" filter="url(#grain)" opacity=".58"/>
+    <rect x="1" y="1" width="1598" height="998" rx="41" stroke="#FFF" stroke-opacity=".05" stroke-width="2"/>
+  </g>
+</svg>

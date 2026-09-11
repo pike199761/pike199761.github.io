@@ -5,99 +5,304 @@ import Footer from '../components/Footer.astro';
 import FormattedDate from '../components/FormattedDate.astro';
 import Header from '../components/Header.astro';
 import { SITE_DESCRIPTION, SITE_TITLE, SITE_TAGLINE } from '../consts';
-const posts = (await getCollection('blog')).filter(post => !post.data.draft).sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
-const [featured, ...rest] = posts;
+
+const posts = (await getCollection('blog'))
+  .filter(post => !post.data.draft)
+  .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
+const [featured] = posts;
+const latestDate = featured
+  ? [featured.data.pubDate.getMonth() + 1, featured.data.pubDate.getDate(), featured.data.pubDate.getFullYear()]
+      .map((part, index) => index < 2 ? String(part).padStart(2, '0') : String(part))
+      .join('.')
+  : '';
 const interests = [
-  ['MI', '小米', '产品、设计，以及一家公司怎么长大'],
-  ['30', '库里', '空间、手感和不讲道理的三分球'],
-  ['CR7', 'C罗', '天赋之外，长期主义最具体的样子'],
-  ['A', '阿尔卡拉斯', '年轻、爆发力，还有快乐网球'],
-  ['TS', 'TheShy', '操作、锋利，以及赛场之外的故事'],
+  ['小米', '产品、设计，以及一家公司怎么长大'],
+  ['库里', '空间、手感和那些不讲道理的三分球'],
+  ['C罗', '天赋之外，长期主义最具体的样子'],
+  ['阿尔卡拉斯', '年轻、爆发力，还有快乐网球'],
+  ['TheShy', '操作、锋利，以及赛场之外的故事'],
 ];
 ---
 <!doctype html>
 <html lang="zh-CN">
-<head><BaseHead title={SITE_TITLE + ' — 个人杂志'} description={SITE_DESCRIPTION} /></head>
-<body><Header /><main>
-  <section class="masthead shell">
-    <div class="mast-meta"><span>PERSONAL MAGAZINE</span><span>SPORT · TECH · CULTURE</span></div>
-    <h1>PIKE<span>.</span></h1>
-    <div class="tagline"><p>{SITE_TAGLINE}</p><small>一本不定期出版、没有编辑部的个人杂志。</small></div>
-  </section>
+<head><BaseHead title={SITE_TITLE + ' — 个人博客'} description={SITE_DESCRIPTION} /></head>
+<body>
+  <Header />
+  <main>
+    <section class="hero shell" data-hero>
+      <div class="hero-copy">
+        <p class="hero-kicker">PIKE / NOTES SINCE 2026</p>
+        <h1>把喜欢的人和事，<br /><em>写得久一点。</em></h1>
+        <p class="hero-note">电影、科技、比赛，还有一些没想明白的问题。先记下来，慢慢再说。</p>
 
-  {featured && (
-    <section class="cover-story shell">
-      <div class="poster">
-        <span class="poster-top">VOL. 01<br />SEPTEMBER 2026</span>
-        <strong>喜欢<br />不是<br />一种<br /><i>小事</i></strong>
-        <span class="poster-bottom">KEEP CARING<br />KEEP WRITING</span>
+        {featured && (
+          <a class="latest" href={'/blog/' + featured.id + '/'}>
+            <span class="latest-meta">LATEST · {latestDate}</span>
+            <strong>{featured.data.title}</strong>
+            <p>{featured.data.description}</p>
+            <i aria-hidden="true">→</i>
+          </a>
+        )}
       </div>
-      <article>
-        <div class="story-meta"><p class="eyebrow">Cover story / 最新文章</p><FormattedDate date={featured.data.pubDate} /></div>
-        <a href={'/blog/' + featured.id + '/'}><h2>{featured.data.title}</h2></a>
-        <p class="dek">{featured.data.description}</p>
-        <div class="story-foot"><div>{featured.data.tags.map(tag => <span class="pill">{tag}</span>)}</div><a class="read" href={'/blog/' + featured.id + '/'}>阅读全文 <b>→</b></a></div>
-      </article>
+
+      <figure class="hero-visual">
+        <img src="/images/desk-light.svg" alt="深灰桌面上的半开杂志、暖白纸张、黑色玻璃、球体和一枚橙色书签，被下午的侧光照亮" />
+        <figcaption>桌面上的一束光</figcaption>
+        <span class="issue" aria-hidden="true">001</span>
+      </figure>
     </section>
-  )}
 
-  <section class="interests shell">
-    <header><p class="eyebrow">Subjects / 会写到的人和事</p><h2>关注列表</h2><p>不是栏目，更像几条长期追踪的线索。</p></header>
-    <div class="interest-list">
-      {interests.map((item, index) => <div class="interest"><span>{item[0]}</span><div><b>{item[1]}</b><p>{item[2]}</p></div><i>{String(index + 1).padStart(2, '0')}</i></div>)}
-    </div>
-  </section>
+    <section class="subjects shell">
+      <header class="section-head">
+        <div>
+          <p class="eyebrow">Subjects</p>
+          <h2>会反复写到的</h2>
+        </div>
+        <p>不是栏目，也不需要凑齐更新。只是这些人和东西，我大概还会继续看很久。</p>
+      </header>
+      <div class="subject-list">
+        {interests.map((item, index) => (
+          <div class="subject-row">
+            <span>{String(index + 1).padStart(2, '0')}</span>
+            <strong>{item[0]}</strong>
+            <p>{item[1]}</p>
+          </div>
+        ))}
+      </div>
+    </section>
 
-  <section class="archive-preview shell">
-    <div class="archive-head"><p class="eyebrow">Archive</p><h2>所有文章</h2><a class="arrow-link" href="/blog/">打开目录</a></div>
-    <div class="archive-list">
-      {posts.slice(0, 5).map((post, index) => <a href={'/blog/' + post.id + '/'}><span>{String(index + 1).padStart(2, '0')}</span><strong>{post.data.title}</strong><p>{post.data.description}</p><FormattedDate date={post.data.pubDate} /><b>↗</b></a>)}
-    </div>
-  </section>
-</main><Footer /></body>
+    <section class="archive-preview shell">
+      <header class="section-head archive-head">
+        <div>
+          <p class="eyebrow">Archive</p>
+          <h2>最近写的</h2>
+        </div>
+        <a class="all-posts" href="/blog/">所有文章 <span>→</span></a>
+      </header>
+      <div class="archive-list">
+        {posts.slice(0, 5).map((post, index) => (
+          <a href={'/blog/' + post.id + '/'}>
+            <span class="post-number">{String(index + 1).padStart(2, '0')}</span>
+            <div>
+              <strong>{post.data.title}</strong>
+              <p>{post.data.description}</p>
+            </div>
+            <FormattedDate date={post.data.pubDate} />
+            <b aria-hidden="true">→</b>
+          </a>
+        ))}
+      </div>
+    </section>
+  </main>
+  <Footer />
+
+  <script>
+    const hero = document.querySelector('[data-hero]');
+    const visual = hero?.querySelector('.hero-visual');
+    const allowMotion = window.matchMedia('(hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference)').matches;
+
+    if (hero && visual && allowMotion) {
+      hero.addEventListener('pointermove', (event) => {
+        const rect = hero.getBoundingClientRect();
+        const x = ((event.clientX - rect.left) / rect.width - 0.5) * 16;
+        const y = ((event.clientY - rect.top) / rect.height - 0.5) * 16;
+        visual.style.setProperty('--move-x', `${x.toFixed(2)}px`);
+        visual.style.setProperty('--move-y', `${y.toFixed(2)}px`);
+      });
+      hero.addEventListener('pointerleave', () => {
+        visual.style.setProperty('--move-x', '0px');
+        visual.style.setProperty('--move-y', '0px');
+      });
+    }
+  </script>
+</body>
 </html>
+
 <style>
-  .masthead { padding-top: 2.4rem; }
-  .mast-meta { display: flex; justify-content: space-between; padding-bottom: .7rem; border-bottom: 1px solid var(--ink); font-size: .62rem; font-weight: 700; letter-spacing: .16em; }
-  .masthead h1 { margin: -.04em 0 -.1em; font-size: clamp(7rem, 22vw, 17rem); line-height: .85; letter-spacing: -.09em; }
-  .masthead h1 span { color: var(--orange); }
-  .tagline { display: flex; justify-content: space-between; align-items: end; padding-block: 1rem; border-block: 2px solid var(--ink); }
-  .tagline p { margin: 0; font-family: var(--serif); font-size: clamp(1.35rem, 3vw, 2.4rem); font-weight: 700; }
-  .tagline small { max-width: 260px; color: var(--muted); font-size: .72rem; text-align: right; }
-  .cover-story { display: grid; grid-template-columns: .75fr 1.45fr; min-height: 610px; margin-top: 3rem; border: 2px solid var(--ink); background: var(--paper-2); }
-  .poster { position: relative; overflow: hidden; padding: 2rem; color: var(--ink); background: var(--orange); border-right: 2px solid var(--ink); }
-  .poster::before { content: 'P'; position: absolute; right: -3rem; bottom: -8rem; color: color-mix(in srgb, var(--paper) 22%, transparent); font-size: 31rem; font-weight: 700; line-height: 1; transform: rotate(-8deg); }
-  .poster-top, .poster-bottom { position: relative; z-index: 1; display: block; font-size: .62rem; font-weight: 700; line-height: 1.4; letter-spacing: .16em; }
-  .poster strong { position: relative; z-index: 1; display: block; margin-top: 4rem; font-size: clamp(3.6rem, 7vw, 6.7rem); line-height: .83; letter-spacing: -.08em; }
-  .poster strong i { color: var(--paper); font-style: normal; }
-  .poster-bottom { position: absolute; bottom: 2rem; }
-  .cover-story article { display: flex; flex-direction: column; justify-content: center; padding: clamp(2rem, 6vw, 5rem); }
-  .story-meta { display: flex; justify-content: space-between; padding-bottom: 1rem; border-bottom: 1px solid var(--line); color: var(--muted); font-size: .72rem; }
-  .cover-story article > a { text-decoration: none; }
-  .cover-story h2 { margin: 2rem 0 1rem; font-size: clamp(3.4rem, 8vw, 7.5rem); line-height: .88; letter-spacing: -.07em; }
-  .cover-story article > a:hover h2 { color: var(--orange-dark); }
-  .dek { max-width: 650px; color: var(--muted); font-family: var(--serif); font-size: 1.08rem; }
-  .story-foot { display: flex; justify-content: space-between; align-items: center; margin-top: 3rem; }
-  .story-foot > div { display: flex; gap: .4rem; }
-  .read { padding: .7rem 1rem; color: #fff; background: var(--ink); font-size: .78rem; font-weight: 700; text-decoration: none; }
-  .read b { color: var(--orange); }
-  .interests { display: grid; grid-template-columns: .7fr 1.3fr; gap: 5rem; padding-top: 8rem; }
-  .interests header { position: sticky; top: 110px; align-self: start; }
-  .interests header h2, .archive-head h2 { margin: .8rem 0; font-size: clamp(3rem, 6vw, 5.5rem); line-height: .9; letter-spacing: -.06em; }
-  .interests header > p:last-child { max-width: 310px; color: var(--muted); font-family: var(--serif); }
-  .interest-list { border-top: 2px solid var(--ink); }
-  .interest { display: grid; grid-template-columns: 80px 1fr auto; align-items: center; gap: 1rem; min-height: 118px; border-bottom: 1px solid var(--ink); }
-  .interest > span { display: grid; place-items: center; width: 58px; aspect-ratio: 1; color: #fff; background: var(--orange); border-radius: 50%; font-weight: 700; }
-  .interest b { font-size: 1.55rem; }
-  .interest p { margin: .2rem 0 0; color: var(--muted); font-family: var(--serif); font-size: .85rem; }
-  .interest i { color: var(--muted); font-size: .68rem; font-style: normal; }
-  .archive-preview { padding-top: 8rem; }
-  .archive-head { display: grid; grid-template-columns: 1fr auto; align-items: end; padding-bottom: 1.5rem; border-bottom: 2px solid var(--ink); }
-  .archive-head .eyebrow { grid-column: 1 / -1; }
-  .archive-list a { display: grid; grid-template-columns: 50px 1fr 1.5fr 150px 24px; gap: 1.2rem; align-items: center; padding: 1.2rem 0; border-bottom: 1px solid var(--line); text-decoration: none; }
-  .archive-list a:hover { background: var(--paper-2); }
-  .archive-list span, .archive-list time, .archive-list a > b { color: var(--muted); font-size: .72rem; }
-  .archive-list p { margin: 0; color: var(--muted); font-family: var(--serif); font-size: .83rem; }
-  @media (max-width: 820px) { .masthead { padding-top: 1.5rem; } .masthead h1 { font-size: 28vw; } .tagline { align-items: flex-start; flex-direction: column; gap: .5rem; } .tagline small { text-align: left; } .cover-story { grid-template-columns: 1fr; } .poster { min-height: 440px; border-right: 0; border-bottom: 2px solid var(--ink); } .interests { grid-template-columns: 1fr; gap: 2rem; padding-top: 5rem; } .interests header { position: static; } .archive-list a { grid-template-columns: 36px 1fr auto; } .archive-list p, .archive-list time { display: none; } }
-  @media (max-width: 560px) { .mast-meta span:last-child { display: none; } .cover-story { margin-top: 1.5rem; } .poster { min-height: 380px; } .poster strong { font-size: 4.4rem; } .cover-story h2 { font-size: 3.8rem; } .story-foot { align-items: flex-start; flex-direction: column; gap: 1.5rem; } .interest { grid-template-columns: 64px 1fr; } .interest i { display: none; } .archive-head { grid-template-columns: 1fr; } }
+  .hero {
+    display: grid;
+    grid-template-columns: minmax(0, .84fr) minmax(480px, 1.16fr);
+    gap: clamp(2.5rem, 6vw, 6.5rem);
+    align-items: center;
+    min-height: min(790px, calc(100vh - 71px));
+    padding-block: clamp(4.5rem, 9vw, 8.5rem);
+  }
+  .hero-copy { position: relative; z-index: 2; }
+  .hero-kicker {
+    margin: 0 0 2rem;
+    color: var(--muted);
+    font-size: .61rem;
+    font-weight: 700;
+    letter-spacing: .18em;
+  }
+  .hero h1 {
+    margin: 0;
+    font-size: clamp(3.3rem, 5.25vw, 5rem);
+    font-weight: 560;
+    line-height: 1.05;
+    letter-spacing: -.065em;
+    text-wrap: balance;
+    animation: title-in 1s .18s both cubic-bezier(.2,.75,.25,1);
+  }
+  .hero h1 em { color: var(--orange); font-style: normal; }
+  .hero-note {
+    max-width: 31rem;
+    margin: 1.65rem 0 0;
+    color: var(--muted);
+    font-size: .92rem;
+    line-height: 1.85;
+  }
+  .latest {
+    position: relative;
+    display: block;
+    max-width: 32rem;
+    margin-top: clamp(3.5rem, 7vw, 6rem);
+    padding: 1.35rem 3.1rem 1.35rem 0;
+    border-block: 1px solid var(--line);
+    text-decoration: none;
+  }
+  .latest-meta {
+    display: block;
+    margin-bottom: .72rem;
+    color: var(--orange-dark);
+    font-size: .6rem;
+    font-weight: 700;
+    letter-spacing: .16em;
+  }
+  .latest strong { display: block; font-size: clamp(1.3rem, 2vw, 1.8rem); line-height: 1.25; letter-spacing: -.035em; }
+  .latest p { margin: .45rem 0 0; color: var(--muted); font-size: .78rem; line-height: 1.65; }
+  .latest i {
+    position: absolute;
+    right: .1rem;
+    top: 50%;
+    color: var(--orange);
+    font-size: 1.35rem;
+    font-style: normal;
+    transform: translateY(-50%);
+    transition: transform .25s ease;
+  }
+  .latest:hover i { transform: translate(5px, -50%); }
+
+  .hero-visual {
+    --move-x: 0px;
+    --move-y: 0px;
+    position: relative;
+    width: 100%;
+    margin: 0;
+    aspect-ratio: 16 / 10;
+    overflow: hidden;
+    border-radius: 30px;
+    background: var(--image-black);
+    box-shadow: 0 32px 80px rgba(24, 20, 16, .16);
+    transform: translate(var(--move-x), var(--move-y));
+    transition: transform .5s cubic-bezier(.2,.75,.25,1), box-shadow .4s ease;
+    animation: image-in 1.4s both cubic-bezier(.2,.75,.25,1);
+  }
+  .hero-visual img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .hero-visual::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border: 1px solid rgba(255,255,255,.08);
+    border-radius: inherit;
+    pointer-events: none;
+  }
+  .hero-visual figcaption {
+    position: absolute;
+    left: 1.25rem;
+    bottom: 1rem;
+    margin: 0;
+    color: rgba(255,255,255,.5);
+    font-size: .55rem;
+    letter-spacing: .16em;
+  }
+  .hero-visual .issue {
+    position: absolute;
+    right: 1.25rem;
+    bottom: .9rem;
+    color: rgba(255,255,255,.34);
+    font-size: .6rem;
+    letter-spacing: .16em;
+  }
+
+  .subjects, .archive-preview { padding-top: clamp(6rem, 11vw, 10rem); }
+  .section-head {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(260px, 430px);
+    gap: 3rem;
+    align-items: end;
+    padding-bottom: 2rem;
+    border-bottom: 1px solid var(--ink);
+  }
+  .section-head h2 { margin: .65rem 0 0; font-size: clamp(2.6rem, 5vw, 4.6rem); font-weight: 560; line-height: 1; letter-spacing: -.06em; }
+  .section-head > p { margin: 0; color: var(--muted); font-size: .82rem; line-height: 1.8; }
+  .subject-list { border-bottom: 1px solid var(--ink); }
+  .subject-row {
+    display: grid;
+    grid-template-columns: 64px minmax(150px, .55fr) minmax(0, 1fr);
+    gap: 1.5rem;
+    align-items: baseline;
+    min-height: 92px;
+    padding: 1.35rem 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .subject-row:last-child { border-bottom: 0; }
+  .subject-row > span { color: var(--muted); font-size: .6rem; letter-spacing: .12em; }
+  .subject-row strong { font-size: 1.35rem; font-weight: 560; letter-spacing: -.03em; }
+  .subject-row p { margin: 0; color: var(--muted); font-size: .82rem; }
+
+  .archive-head { grid-template-columns: 1fr auto; }
+  .all-posts { padding-bottom: .35rem; font-size: .72rem; font-weight: 700; text-decoration: none; }
+  .all-posts span { display: inline-block; margin-left: .25rem; color: var(--orange); transition: transform .25s ease; }
+  .all-posts:hover span { transform: translateX(5px); }
+  .archive-list { border-bottom: 1px solid var(--ink); }
+  .archive-list a {
+    display: grid;
+    grid-template-columns: 64px minmax(0, 1fr) 145px 24px;
+    gap: 1.5rem;
+    align-items: center;
+    min-height: 130px;
+    padding: 1.4rem 0;
+    border-bottom: 1px solid var(--line);
+    text-decoration: none;
+  }
+  .archive-list a:last-child { border-bottom: 0; }
+  .archive-list .post-number, .archive-list :global(time) { color: var(--muted); font-size: .65rem; }
+  .archive-list strong { font-size: clamp(1.5rem, 2.5vw, 2.25rem); font-weight: 560; line-height: 1.2; letter-spacing: -.045em; }
+  .archive-list p { margin: .35rem 0 0; color: var(--muted); font-size: .78rem; }
+  .archive-list :global(time) { text-align: right; }
+  .archive-list b { color: var(--orange); font-size: 1.1rem; transition: transform .25s ease; }
+  .archive-list a:hover b { transform: translateX(5px); }
+
+  @keyframes image-in { from { opacity: .85; transform: scale(1.015); } to { opacity: 1; transform: scale(1); } }
+  @keyframes title-in { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+
+  @media (max-width: 980px) {
+    .hero { grid-template-columns: 1fr; min-height: auto; gap: 3.5rem; padding-block: 4.5rem 6rem; }
+    .hero-copy { max-width: 680px; }
+    .latest { margin-top: 3.5rem; }
+    .hero-visual { max-width: 820px; }
+  }
+  @media (max-width: 680px) {
+    .hero { gap: 2.8rem; padding-block: 3.2rem 4.5rem; }
+    .hero-kicker { margin-bottom: 1.4rem; }
+    .hero h1 { font-size: clamp(2.65rem, 12vw, 3.45rem); line-height: 1.08; }
+    .hero-note { margin-top: 1.25rem; font-size: .86rem; }
+    .latest { margin-top: 2.8rem; }
+    .hero-visual { aspect-ratio: 4 / 5; border-radius: 22px; }
+    .hero-visual img { object-position: 69% center; }
+    .section-head { grid-template-columns: 1fr; gap: 1.4rem; }
+    .section-head > p { max-width: 32rem; }
+    .subject-row { grid-template-columns: 34px 1fr; gap: .8rem; min-height: 88px; }
+    .subject-row p { grid-column: 2; margin-top: -.3rem; }
+    .archive-head { grid-template-columns: 1fr auto; gap: 1rem; }
+    .archive-head .eyebrow { grid-column: auto; }
+    .archive-list a { grid-template-columns: 34px minmax(0, 1fr) 22px; gap: .8rem; min-height: 112px; }
+    .archive-list :global(time) { display: none; }
+    .archive-list p { font-size: .74rem; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .hero h1, .hero-visual { animation: none; }
+    .hero-visual, .latest i, .all-posts span, .archive-list b { transition: none; }
+  }
 </style>

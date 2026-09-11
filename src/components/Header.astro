@@ -12,18 +12,23 @@ const active = (href: string) => href === '/' ? pathName === '/' : pathName.star
   <div class="shell nav-wrap">
     <a class="brand" href="/" aria-label={SITE_TITLE + ' 首页'}>{SITE_TITLE}<i>.</i></a>
     <nav aria-label="主导航">{links.map(link => <a class:list={[{ active: active(link.href) }]} href={link.href}>{link.label}</a>)}</nav>
-    <span class="issue">ISSUE 001<br />SEP. 2026</span>
+    <span class="issue">ISSUE 001&nbsp;&nbsp;·&nbsp;&nbsp;SEP. 2026</span>
   </div>
 </header>
 <style>
-  .site-header { position: sticky; top: 0; z-index: 20; border-bottom: 2px solid var(--ink); background: color-mix(in srgb, var(--paper) 92%, transparent); backdrop-filter: blur(14px); }
+  .site-header { position: sticky; top: 0; z-index: 20; border-bottom: 1px solid color-mix(in srgb, var(--line) 88%, transparent); background: color-mix(in srgb, var(--paper) 91%, transparent); backdrop-filter: blur(18px); }
   .nav-wrap { min-height: 70px; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; }
-  .brand { justify-self: start; font-size: 1.5rem; font-weight: 700; letter-spacing: -.05em; text-decoration: none; }
+  .brand { justify-self: start; font-size: 1.22rem; font-weight: 700; letter-spacing: -.045em; text-decoration: none; }
   .brand i { color: var(--orange); font-style: normal; }
   nav { display: flex; gap: 1.8rem; }
-  nav a { position: relative; font-size: .78rem; font-weight: 700; letter-spacing: .1em; text-decoration: none; }
-  nav a::after { content: ''; position: absolute; left: 0; right: 100%; bottom: -.45rem; height: 4px; background: var(--orange); transition: right .2s ease; }
+  nav a { position: relative; color: var(--muted); font-size: .7rem; font-weight: 700; letter-spacing: .08em; text-decoration: none; transition: color .2s ease; }
+  nav a::after { content: ''; position: absolute; left: 0; right: 100%; bottom: -.55rem; height: 2px; background: var(--orange); transition: right .2s ease; }
+  nav a:hover, nav a.active { color: var(--ink); }
   nav a:hover::after, nav a.active::after { right: 0; }
-  .issue { justify-self: end; font-size: .58rem; font-weight: 700; line-height: 1.25; letter-spacing: .14em; text-align: right; }
-  @media (max-width: 560px) { .nav-wrap { grid-template-columns: auto 1fr; } nav { justify-self: end; gap: 1rem; } .issue { display: none; } }
+  .issue { justify-self: end; color: var(--muted); font-size: .52rem; font-weight: 700; letter-spacing: .13em; }
+  @media (max-width: 620px) {
+    .nav-wrap { grid-template-columns: auto 1fr; min-height: 62px; }
+    nav { justify-self: end; gap: 1.1rem; }
+    .issue { display: none; }
+  }
 </style>
