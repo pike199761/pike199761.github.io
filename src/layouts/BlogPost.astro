@@ -1,0 +1,70 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import BaseHead from '../components/BaseHead.astro';
+import Footer from '../components/Footer.astro';
+import FormattedDate from '../components/FormattedDate.astro';
+import Header from '../components/Header.astro';
+type Props = CollectionEntry<'blog'>['data'];
+const { title, description, pubDate, updatedDate, tags } = Astro.props;
+---
+<html lang="zh-CN">
+<head><BaseHead title={title + ' — PIKE'} description={description} article /></head>
+<body><Header /><main>
+  <article>
+    <header class="article-head shell">
+      <div class="topline">
+        <a class="back" href="/blog/">← 返回目录</a>
+        <span>PIKE / FIELD NOTE</span>
+      </div>
+      <div class="article-grid">
+        <div class="issue-card" aria-hidden="true">
+          <small>ISSUE</small><b>001</b><i>PIKE.</i>
+        </div>
+        <div class="headline">
+          <div class="article-meta"><FormattedDate date={pubDate} /><span>READING NOTE</span></div>
+          <h1>{title}</h1>
+          <p class="dek">{description}</p>
+          <div class="tags">{tags.map(tag => <span class="pill">{tag}</span>)}</div>
+          {updatedDate && <p class="updated">更新于 <FormattedDate date={updatedDate} /></p>}
+        </div>
+      </div>
+    </header>
+    <div class="article-rule"><span>KEEP CARING · KEEP WRITING ·</span></div>
+    <div class="prose"><slot /></div>
+  </article>
+  <aside class="end-mark shell"><span>END OF NOTE</span><i></i><a href="/blog/">继续翻翻 →</a></aside>
+</main><Footer /></body>
+</html>
+<style>
+  .article-head { padding-top: 3.4rem; padding-bottom: 2.8rem; }
+  .topline { display: flex; justify-content: space-between; align-items: center; padding-bottom: 1rem; border-bottom: 2px solid var(--ink); font-size: .62rem; font-weight: 700; letter-spacing: .14em; }
+  .back { text-decoration: none; letter-spacing: 0; }
+  .back:hover { color: var(--orange-dark); }
+  .article-grid { display: grid; grid-template-columns: 190px minmax(0, 1fr); gap: clamp(2rem, 6vw, 6rem); align-items: stretch; padding-top: 2.6rem; }
+  .issue-card { position: relative; display: flex; min-height: 350px; flex-direction: column; padding: 1.3rem; overflow: hidden; border: 2px solid var(--ink); background: var(--orange); }
+  .issue-card::after { content: 'P'; position: absolute; right: -2.5rem; bottom: -4.8rem; color: color-mix(in srgb, var(--paper) 25%, transparent); font-size: 16rem; font-weight: 700; line-height: 1; }
+  .issue-card small { font-size: .6rem; font-weight: 700; letter-spacing: .17em; }
+  .issue-card b { position: relative; z-index: 1; margin-top: auto; font-size: 4rem; line-height: 1; letter-spacing: -.08em; }
+  .issue-card i { position: relative; z-index: 1; font-size: .7rem; font-style: normal; font-weight: 700; letter-spacing: .13em; }
+  .headline { align-self: center; }
+  .article-meta { display: flex; gap: 1rem; color: var(--muted); font-size: .68rem; font-weight: 700; letter-spacing: .12em; }
+  h1 { max-width: 880px; margin: 1.1rem 0 1.4rem; font-size: clamp(4rem, 9vw, 8.5rem); line-height: .86; letter-spacing: -.075em; }
+  .dek { max-width: 650px; margin: 0 0 1.5rem; color: var(--muted); font-family: var(--serif); font-size: 1.12rem; }
+  .tags { display: flex; gap: .4rem; }
+  .updated { color: var(--muted); font-size: .75rem; }
+  .article-rule { overflow: hidden; margin-bottom: 4.5rem; padding: .55rem 0; border-block: 2px solid var(--ink); background: var(--yellow); white-space: nowrap; }
+  .article-rule span { display: block; width: max-content; color: var(--orange-dark); font-size: .65rem; font-weight: 700; letter-spacing: .22em; transform: translateX(8vw); }
+  .end-mark { max-width: 720px; display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 1rem; margin-top: 5rem; color: var(--muted); font-size: .68rem; font-weight: 700; letter-spacing: .12em; }
+  .end-mark i { height: 1px; background: var(--line); }
+  .end-mark a { letter-spacing: 0; text-decoration: none; }
+  .end-mark a:hover { color: var(--orange-dark); }
+  @media (max-width: 720px) {
+    .article-head { padding-top: 2rem; }
+    .article-grid { grid-template-columns: 1fr; gap: 1.6rem; }
+    .issue-card { min-height: 115px; }
+    .issue-card b { margin-top: .5rem; font-size: 2.8rem; }
+    .issue-card::after { right: -1rem; bottom: -6rem; }
+    h1 { font-size: clamp(4rem, 19vw, 6.5rem); }
+    .article-rule { margin-bottom: 3rem; }
+  }
+</style>

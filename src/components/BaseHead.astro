@@ -1,0 +1,24 @@
+---
+import '../styles/global.css';
+import { Font } from 'astro:assets';
+import { SITE_TITLE } from '../consts';
+interface Props { title: string; description: string; article?: boolean }
+const { title, description, article = false } = Astro.props;
+const canonicalURL = new URL(Astro.url.pathname, Astro.site);
+---
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="theme-color" content="#ff5a1f" />
+<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+<link rel="sitemap" href="/sitemap-index.xml" />
+<link rel="alternate" type="application/rss+xml" title={SITE_TITLE} href={new URL('rss.xml', Astro.site)} />
+<meta name="generator" content={Astro.generator} />
+<Font cssVariable="--font-atkinson" preload />
+<link rel="canonical" href={canonicalURL} />
+<title>{title}</title>
+<meta name="description" content={description} />
+<meta property="og:type" content={article ? 'article' : 'website'} />
+<meta property="og:url" content={Astro.url} />
+<meta property="og:title" content={title} />
+<meta property="og:description" content={description} />
+<meta name="twitter:card" content="summary" />

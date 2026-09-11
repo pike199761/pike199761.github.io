@@ -1,0 +1,76 @@
+---
+import { getCollection } from 'astro:content';
+import BaseHead from '../../components/BaseHead.astro';
+import Footer from '../../components/Footer.astro';
+import FormattedDate from '../../components/FormattedDate.astro';
+import Header from '../../components/Header.astro';
+import { SITE_DESCRIPTION } from '../../consts';
+const posts = (await getCollection('blog'))
+  .filter(post => !post.data.draft)
+  .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
+---
+<!doctype html>
+<html lang="zh-CN">
+<head><BaseHead title="文章 — PIKE" description={SITE_DESCRIPTION} /></head>
+<body><Header /><main class="shell archive">
+  <header class="archive-head">
+    <div class="kicker"><p class="eyebrow">Archive / 全部文章</p><span>{String(posts.length).padStart(2, '0')} STORIES</span></div>
+    <h1>文章<br /><i>目录</i></h1>
+    <p class="intro">按时间存放。不分类焦虑，也不强迫每篇都有结论。先把真正想写的写下来，剩下的以后再说。</p>
+  </header>
+
+  <div class="ribbon"><span>PIKE PERSONAL MAGAZINE</span><b>READ SLOWLY</b><span>EST. 2026</span></div>
+
+  <section class="post-list" aria-label="文章列表">
+    {posts.map((post, index) => (
+      <a class="post-row" href={'/blog/' + post.id + '/'}>
+        <span class="number">{String(index + 1).padStart(2, '0')}</span>
+        <div class="post-copy">
+          <div class="tags">{post.data.tags.map(tag => <span class="pill">{tag}</span>)}</div>
+          <h2>{post.data.title}</h2>
+          <p>{post.data.description}</p>
+        </div>
+        <FormattedDate date={post.data.pubDate} />
+        <b class="arrow">↗</b>
+      </a>
+    ))}
+  </section>
+</main><Footer /></body>
+</html>
+<style>
+  .archive { padding-top: 4rem; }
+  .archive-head { display: grid; grid-template-columns: 170px minmax(0, 1fr) 330px; gap: 2rem; align-items: end; padding-bottom: 3rem; }
+  .kicker { align-self: stretch; display: flex; flex-direction: column; justify-content: space-between; padding-top: .3rem; }
+  .kicker span { font-size: .62rem; font-weight: 700; letter-spacing: .15em; }
+  .archive-head h1 { margin: 0; font-size: clamp(5rem, 11vw, 9rem); line-height: .72; letter-spacing: -.08em; }
+  .archive-head h1 i { color: var(--orange); font-style: normal; }
+  .intro { margin: 0; padding-left: 1.4rem; border-left: 6px solid var(--orange); color: var(--muted); font-family: var(--serif); font-size: .95rem; }
+  .ribbon { display: flex; justify-content: space-between; gap: 1rem; margin-bottom: 2.5rem; padding: .65rem 1rem; border: 2px solid var(--ink); background: var(--yellow); font-size: .6rem; font-weight: 700; letter-spacing: .14em; }
+  .ribbon b { color: var(--orange-dark); }
+  .post-list { border-top: 2px solid var(--ink); }
+  .post-row { display: grid; grid-template-columns: 70px minmax(0, 1fr) 150px 34px; align-items: center; gap: 1.5rem; min-height: 190px; padding: 1.7rem 0; border-bottom: 1px solid var(--ink); text-decoration: none; transition: padding .2s ease, background .2s ease; }
+  .post-row:hover { padding-inline: 1rem; background: var(--paper-2); }
+  .number { align-self: start; color: var(--orange-dark); font-size: 1rem; font-weight: 700; }
+  .post-copy h2 { margin: .65rem 0 .4rem; font-size: clamp(2.4rem, 5vw, 4.6rem); line-height: .93; letter-spacing: -.06em; }
+  .post-row:hover h2 { color: var(--orange-dark); }
+  .post-copy p { max-width: 650px; margin: 0; color: var(--muted); font-family: var(--serif); font-size: .92rem; }
+  .tags { display: flex; gap: .35rem; }
+  .post-row time { align-self: start; color: var(--muted); font-size: .7rem; text-align: right; }
+  .arrow { color: var(--orange); font-size: 1.5rem; }
+  @media (max-width: 850px) {
+    .archive-head { grid-template-columns: 1fr; align-items: start; }
+    .kicker { min-height: 50px; flex-direction: row; }
+    .intro { max-width: 580px; }
+  }
+  @media (max-width: 650px) {
+    .archive { padding-top: 2.5rem; }
+    .archive-head { gap: 1.2rem; padding-bottom: 2rem; }
+    .archive-head h1 { font-size: 24vw; }
+    .ribbon span:last-child { display: none; }
+    .post-row { grid-template-columns: 34px minmax(0, 1fr) 24px; min-height: 155px; gap: .8rem; }
+    .post-row time { display: none; }
+    .post-copy h2 { font-size: 2.65rem; }
+    .post-copy p { font-size: .85rem; }
+    .post-row:hover { padding-inline: .4rem; }
+  }
+</style>
