@@ -4,67 +4,95 @@ import BaseHead from '../components/BaseHead.astro';
 import Footer from '../components/Footer.astro';
 import FormattedDate from '../components/FormattedDate.astro';
 import Header from '../components/Header.astro';
-type Props = CollectionEntry<'blog'>['data'];
-const { title, description, pubDate, updatedDate, tags } = Astro.props;
+type Props = CollectionEntry<'blog'>['data'] & { headings: { depth: number; slug: string; text: string }[]; minutes: number };
+const { title, description, pubDate, updatedDate, tags, headings, minutes } = Astro.props;
+const toc = headings.filter(heading => heading.depth === 2 || heading.depth === 3);
 ---
+<!doctype html>
 <html lang="zh-CN">
-<head><BaseHead title={title + ' — PIKE'} description={description} article /></head>
-<body><Header /><main>
-  <article>
-    <header class="article-head shell">
-      <div class="topline">
-        <a class="back" href="/blog/">← 返回目录</a>
-        <span>PIKE / FIELD NOTE</span>
-      </div>
-      <div class="article-grid">
-        <div class="issue-card" aria-hidden="true">
-          <small>ISSUE</small><b>001</b><i>PIKE.</i>
+<head><BaseHead title={title + ' — PIKE'} description={description} article /><meta property="article:published_time" content={pubDate.toISOString()} />{updatedDate && <meta property="article:modified_time" content={updatedDate.toISOString()} />}</head>
+<body class="reading-page">
+  <div class="reading-progress" aria-hidden="true"><span data-reading-progress></span></div>
+  <Header />
+  <main id="main-content" tabindex="-1" class="shell article-shell">
+    <a class="text-link article-back" href="/blog/"><span aria-hidden="true">←</span> 所有文章</a>
+    <article>
+      <header class="article-head">
+        <div class="article-meta"><span class="author">PIKE</span><FormattedDate date={pubDate} /><span>约 {minutes} 分钟阅读</span></div>
+        <h1>{title}</h1>
+        <p class="description">{description}</p>
+        <div class="article-tags">{tags.map(tag => <a class="pill" href={'/blog/?tag=' + encodeURIComponent(tag)}>{tag}</a>)}</div>
+        {updatedDate && <p class="updated">更新于 <FormattedDate date={updatedDate} /></p>}
+      </header>
+      <div class:list={['reading-layout', { 'without-toc': toc.length === 0 }]}>
+        {toc.length > 0 && <aside class="toc"><details open><summary>本文目录 <span aria-hidden="true">⌄</span></summary><nav aria-label="文章目录">{toc.map(heading => <a class:list={{ nested: heading.depth === 3 }} href={'#' + heading.slug} data-toc-link>{heading.text}</a>)}</nav></details></aside>}
+        <div class="article-body">
+          <div class="prose" data-article-content><slot /></div>
+          <div class="end-mark" aria-hidden="true">· · ·</div>
+          <div class="article-actions"><a class="text-link" href="/blog/"><span aria-hidden="true">←</span> 返回文章列表</a><a class="text-link" href="#main-content">回到顶部 <span aria-hidden="true">↑</span></a></div>
         </div>
-        <div class="headline">
-          <div class="article-meta"><FormattedDate date={pubDate} /><span>READING NOTE</span></div>
-          <h1>{title}</h1>
-          <p class="dek">{description}</p>
-          <div class="tags">{tags.map(tag => <span class="pill">{tag}</span>)}</div>
-          {updatedDate && <p class="updated">更新于 <FormattedDate date={updatedDate} /></p>}
-        </div>
       </div>
-    </header>
-    <div class="article-rule"><span>KEEP CARING · KEEP WRITING ·</span></div>
-    <div class="prose"><slot /></div>
-  </article>
-  <aside class="end-mark shell"><span>END OF NOTE</span><i></i><a href="/blog/">继续翻翻 →</a></aside>
-</main><Footer /></body>
-</html>
+    </article>
+  </main>
+  <Footer />
+  <script>
+    const progress = document.querySelector<HTMLElement>('[data-reading-progress]');
+    const content = document.querySelector<HTMLElement>('[data-article-content]');
+    const links = [...document.querySelectorAll<HTMLAnchorElement>('[data-toc-link]')];
+    const sections = links.map(link => ({ link, heading: document.getElementById(decodeURIComponent(link.hash.slice(1))) })).filter(item => item.heading);
+    let scheduled = false;
+    function updateReading() {
+      scheduled = false;
+      if (!content || !progress) return;
+      const rect = content.getBoundingClientRect();
+      const range = Math.max(1, rect.height - window.innerHeight + 130);
+      const ratio = Math.min(1, Math.max(0, (130 - rect.top) / range));
+      progress.style.transform = `scaleX(${ratio})`;
+      let current: HTMLAnchorElement | undefined;
+      for (const section of sections) if (section.heading!.getBoundingClientRect().top <= 165) current = section.link;
+      for (const link of links) {
+        if (link === current) link.setAttribute('aria-current', 'location');
+        else link.removeAttribute('aria-current');
+      }
+    }
+    function scheduleReading() { if (!scheduled) { scheduled = true; requestAnimationFrame(updateReading); } }
+    if (progress && content) {
+      window.addEventListener('scroll', scheduleReading, { passive: true });
+      window.addEventListener('resize', scheduleReading);
+      window.addEventListener('pageshow', scheduleReading);
+      new ResizeObserver(scheduleReading).observe(content);
+      updateReading();
+    }
+  </script>
+</body></html>
 <style>
-  .article-head { padding-top: 3.4rem; padding-bottom: 2.8rem; }
-  .topline { display: flex; justify-content: space-between; align-items: center; padding-bottom: 1rem; border-bottom: 2px solid var(--ink); font-size: .62rem; font-weight: 700; letter-spacing: .14em; }
-  .back { text-decoration: none; letter-spacing: 0; }
-  .back:hover { color: var(--orange-dark); }
-  .article-grid { display: grid; grid-template-columns: 190px minmax(0, 1fr); gap: clamp(2rem, 6vw, 6rem); align-items: stretch; padding-top: 2.6rem; }
-  .issue-card { position: relative; display: flex; min-height: 350px; flex-direction: column; padding: 1.3rem; overflow: hidden; border: 2px solid var(--ink); background: var(--orange); }
-  .issue-card::after { content: 'P'; position: absolute; right: -2.5rem; bottom: -4.8rem; color: color-mix(in srgb, var(--paper) 25%, transparent); font-size: 16rem; font-weight: 700; line-height: 1; }
-  .issue-card small { font-size: .6rem; font-weight: 700; letter-spacing: .17em; }
-  .issue-card b { position: relative; z-index: 1; margin-top: auto; font-size: 4rem; line-height: 1; letter-spacing: -.08em; }
-  .issue-card i { position: relative; z-index: 1; font-size: .7rem; font-style: normal; font-weight: 700; letter-spacing: .13em; }
-  .headline { align-self: center; }
-  .article-meta { display: flex; gap: 1rem; color: var(--muted); font-size: .68rem; font-weight: 700; letter-spacing: .12em; }
-  h1 { max-width: 880px; margin: 1.1rem 0 1.4rem; font-size: clamp(4rem, 9vw, 8.5rem); line-height: .86; letter-spacing: -.075em; }
-  .dek { max-width: 650px; margin: 0 0 1.5rem; color: var(--muted); font-family: var(--serif); font-size: 1.12rem; }
-  .tags { display: flex; gap: .4rem; }
-  .updated { color: var(--muted); font-size: .75rem; }
-  .article-rule { overflow: hidden; margin-bottom: 4.5rem; padding: .55rem 0; border-block: 2px solid var(--ink); background: var(--yellow); white-space: nowrap; }
-  .article-rule span { display: block; width: max-content; color: var(--orange-dark); font-size: .65rem; font-weight: 700; letter-spacing: .22em; transform: translateX(8vw); }
-  .end-mark { max-width: 720px; display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 1rem; margin-top: 5rem; color: var(--muted); font-size: .68rem; font-weight: 700; letter-spacing: .12em; }
-  .end-mark i { height: 1px; background: var(--line); }
-  .end-mark a { letter-spacing: 0; text-decoration: none; }
-  .end-mark a:hover { color: var(--orange-dark); }
-  @media (max-width: 720px) {
-    .article-head { padding-top: 2rem; }
-    .article-grid { grid-template-columns: 1fr; gap: 1.6rem; }
-    .issue-card { min-height: 115px; }
-    .issue-card b { margin-top: .5rem; font-size: 2.8rem; }
-    .issue-card::after { right: -1rem; bottom: -6rem; }
-    h1 { font-size: clamp(4rem, 19vw, 6.5rem); }
-    .article-rule { margin-bottom: 3rem; }
-  }
+  .article-shell { max-width: 1040px; }
+  .article-back { margin-top: 28px; color: var(--muted); font-size: 13px; }
+  .article-head { max-width: 710px; margin: 28px 0 42px 220px; padding-bottom: 32px; border-bottom: 1px solid var(--line); }
+  .article-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 17px; color: var(--muted); font-size: 12px; }
+  .author { font-size: 11px; color: var(--orange-dark); letter-spacing: .1em; }
+  h1 { margin: 23px 0 19px; font-size: clamp(28px, 3.3vw, 38px); font-weight: 500; line-height: 1.5; letter-spacing: -.04em; }
+  .description { margin: 0; color: var(--muted); font-size: 15px; line-height: 1.9; }
+  .article-tags { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 22px; }
+  .article-tags a { padding: 8px 0; margin-right: 12px; border: 0; text-decoration: none; }
+  .article-tags a:hover { color: var(--orange-dark); border-color: var(--orange); }
+  .updated { font-size: 12px; color: var(--muted); margin-bottom: 0; }
+  .reading-layout { display: grid; grid-template-columns: 170px minmax(0, 710px); gap: 50px; align-items: start; }
+  .toc { position: sticky; top: 120px; }
+  summary { display: flex; align-items: center; justify-content: space-between; min-height: 44px; padding-bottom: 8px; border-bottom: 1px solid var(--line); font-size: 12px; cursor: pointer; list-style: none; }
+  summary::-webkit-details-marker { display: none; }
+  details:not([open]) summary span { transform: rotate(-90deg); }
+  .toc nav { display: flex; flex-direction: column; padding-top: 12px; }
+  .toc a { display: block; border-left: 2px solid transparent; margin-left: -1px; padding: 9px 0 9px 12px; color: var(--muted); font-size: 12px; line-height: 1.7; text-decoration: none; }
+  .toc a.nested { padding-left: 24px; font-size: 11px; }
+  .toc a[aria-current], .toc a:hover { color: var(--orange-dark); border-left-color: var(--orange); }
+  .without-toc .article-body { grid-column: 2; }
+  .article-body { min-width: 0; }
+  .end-mark { text-align: center; padding: 30px 0 36px; color: var(--muted); font-size: 17px; letter-spacing: .3em; }
+  .article-actions { display: flex; align-items: center; justify-content: space-between; gap: 20px; border-top: 1px solid var(--line); padding-top: 17px; }
+  .article-actions a { font-size: 12px; }
+  .reading-progress { position: fixed; top: 0; left: 0; width: 100%; height: 3px; z-index: 30; pointer-events: none; }
+  .reading-progress span { display: block; width: 100%; height: 100%; background: var(--orange); transform: scaleX(0); transform-origin: left; }
+  @media (max-width: 850px) { .article-head { margin-left: 0; max-width: none; } .reading-layout { grid-template-columns: 1fr; gap: 30px; } .toc { position: static; padding: 14px 20px; border-radius: 4px; background: var(--paper-2); } .without-toc .article-body { grid-column: auto; } .article-shell { max-width: 720px; } }
+  @media (max-width: 600px) { .article-back { margin-top: 20px; } .article-head { margin-top: 20px; margin-bottom: 25px; padding-bottom: 25px; } h1 { font-size: 28px; } .article-meta { gap: 12px; font-size: 11px; } .description { font-size: 14px; } .toc a { min-height: 44px; display: flex; align-items: center; } }
 </style>

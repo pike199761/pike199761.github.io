@@ -5,56 +5,30 @@ import Header from '../components/Header.astro';
 ---
 <!doctype html>
 <html lang="zh-CN">
-<head><BaseHead title="关于 — PIKE" description="关于 Pike，以及这个博客为什么存在。" /></head>
-<body><Header /><main class="shell about">
-  <header class="about-head">
-    <div><p class="eyebrow">About / 简短自我介绍</p><span>NO. 001 — 2026</span></div>
-    <h1>先别急着<br /><i>认识我。</i></h1>
-  </header>
-
-  <section class="about-grid">
-    <div class="portrait" aria-hidden="true">
-      <small>PIKE / PERSONAL FILE</small>
-      <span>P</span>
-      <b>STILL<br />LOADING</b>
+<head><BaseHead title="关于 — PIKE" description="关于 Pike 和这个个人博客。" /></head>
+<body>
+  <Header />
+  <main id="main-content" tabindex="-1" class="shell about">
+    <header class="page-heading"><h1>你好，我是 Pike。</h1></header>
+    <div class="about-copy prose">
+      <p>这里是我的个人博客。</p>
+      <p>平时关注小米，也看库里、C罗、阿尔卡拉斯和 TheShy 的比赛。还会看看电影、读点书，折腾一些新东西。</p>
+      <p>有想写的，就放在这里。</p>
+      <a class="text-link" href="/blog/">看看文章 <span aria-hidden="true">→</span></a>
     </div>
-    <div class="copy">
-      <p class="lead">这是 Pike 的个人博客。</p>
-      <p>关于我还没打算写成一份简历。暂时可以确定的是：我喜欢小米，也看库里、C罗、阿尔卡拉斯和 TheShy。电影、书、技术，以及那些突然冒出来的问题，也都算。</p>
-      <p>这里不会保证日更，也不准备把每个念头包装成“深度思考”。有些文章可能很认真，有些只是觉得这事挺有意思，应该留下来。</p>
-      <blockquote>把喜欢的人和事，<br />写得久一点。</blockquote>
-      <p>这不是口号，更像一个朴素的提醒：别只在刷到的时候激动三分钟。</p>
-      <a class="github" href="https://github.com/pike199761">去 GitHub 看看 ↗</a>
-    </div>
-  </section>
-</main><Footer /></body>
+    <section class="colophon" aria-labelledby="site-heading"><h2 id="site-heading">关于这个小站</h2><p>用 Astro 搭建，托管在 GitHub Pages。文章以 Markdown 文件保存。</p><a class="text-link" href="/rss.xml">通过 RSS 订阅 <span aria-hidden="true">↗</span></a></section>
+  </main>
+  <Footer />
+</body>
 </html>
 <style>
-  .about { padding-top: 4rem; }
-  .about-head { display: grid; grid-template-columns: 190px 1fr; gap: 3rem; padding-bottom: 3rem; border-bottom: 2px solid var(--ink); }
-  .about-head > div { display: flex; flex-direction: column; justify-content: space-between; padding-block: .4rem; }
-  .about-head span { font-size: .6rem; font-weight: 700; letter-spacing: .14em; }
-  h1 { margin: 0; font-size: clamp(5rem, 11vw, 9rem); line-height: .8; letter-spacing: -.08em; }
-  h1 i { color: var(--orange); font-style: normal; }
-  .about-grid { display: grid; grid-template-columns: .8fr 1.2fr; gap: clamp(3rem, 8vw, 8rem); align-items: start; margin-top: 4rem; }
-  .portrait { position: sticky; top: 105px; display: flex; min-height: 560px; flex-direction: column; overflow: hidden; padding: 1.5rem; border: 2px solid var(--ink); background: var(--orange); }
-  .portrait::after { content: ''; position: absolute; right: -18%; top: 20%; width: 88%; aspect-ratio: 1; border: 2px solid var(--ink); border-radius: 50%; }
-  .portrait small { position: relative; z-index: 1; font-size: .58rem; font-weight: 700; letter-spacing: .15em; }
-  .portrait span { position: relative; z-index: 1; margin: auto; font-size: 13rem; font-weight: 700; line-height: .8; letter-spacing: -.12em; }
-  .portrait b { position: relative; z-index: 1; font-size: .7rem; line-height: 1.2; letter-spacing: .18em; }
-  .copy { padding-top: 1rem; font-family: var(--serif); font-size: 1.16rem; line-height: 2; }
-  .copy p { margin: 0 0 1.6rem; }
-  .copy .lead { font-family: var(--sans); font-size: clamp(2.4rem, 5vw, 4.5rem); font-weight: 700; line-height: 1; letter-spacing: -.06em; }
-  blockquote { margin: 3rem 0; padding: 1.6rem 0 1.6rem 1.4rem; border-left: 8px solid var(--orange); font-family: var(--sans); font-size: clamp(2rem, 4vw, 3.3rem); font-weight: 700; line-height: 1.15; letter-spacing: -.04em; }
-  .github { display: inline-block; margin-top: 1rem; padding: .7rem 1rem; color: #fff; background: var(--ink); font-family: var(--sans); font-size: .78rem; font-weight: 700; text-decoration: none; }
-  .github:hover { color: var(--orange); }
-  @media (max-width: 760px) {
-    .about { padding-top: 2.5rem; }
-    .about-head { grid-template-columns: 1fr; gap: 1.3rem; }
-    .about-head > div { min-height: 45px; flex-direction: row; }
-    h1 { font-size: 21vw; }
-    .about-grid { grid-template-columns: 1fr; gap: 2.5rem; margin-top: 2.5rem; }
-    .portrait { position: relative; top: auto; min-height: 350px; }
-    .portrait span { font-size: 9rem; }
-  }
+  .about { max-width: 1040px; min-height: calc(100svh - 220px); }
+  .page-heading { padding-bottom: 28px; }
+  .about-copy { max-width: 650px; }
+  .about-copy .text-link { margin-top: 2px; }
+  .colophon { max-width: 650px; margin-top: 48px; padding: 24px 28px; border-left: 3px solid var(--orange); border-radius: 0 12px 12px 0; background: var(--card); }
+  .colophon h2 { margin: 0 0 10px; font-size: 13px; font-weight: 500; }
+  .colophon p { margin: 0; color: var(--muted); font-size: 13px; line-height: 1.9; }
+  .colophon .text-link { margin-top: 4px; color: var(--muted); font-size: 12px; }
+  @media (max-width: 600px) { .colophon { margin-top: 35px; } }
 </style>

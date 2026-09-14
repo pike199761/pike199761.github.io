@@ -1,34 +1,26 @@
 ---
 import { SITE_TITLE } from '../consts';
-const pathName = Astro.url.pathname;
-const links = [
-  { href: '/', label: '封面' },
-  { href: '/blog/', label: '文章' },
-  { href: '/about/', label: '关于' },
-];
-const active = (href: string) => href === '/' ? pathName === '/' : pathName.startsWith(href);
+const path = Astro.url.pathname;
+const links = [{ href: '/', label: '首页' }, { href: '/blog/', label: '文章' }, { href: '/about/', label: '关于' }];
+const active = (href: string) => href === '/' ? path === '/' : path === href.slice(0, -1) || path.startsWith(href);
 ---
+<a class="skip-link" href="#main-content">跳到正文</a>
 <header class="site-header">
   <div class="shell nav-wrap">
-    <a class="brand" href="/" aria-label={SITE_TITLE + ' 首页'}>{SITE_TITLE}<i>.</i></a>
-    <nav aria-label="主导航">{links.map(link => <a class:list={[{ active: active(link.href) }]} href={link.href}>{link.label}</a>)}</nav>
-    <span class="issue">ISSUE 001&nbsp;&nbsp;·&nbsp;&nbsp;SEP. 2026</span>
+    <a class="brand" href="/" aria-label={SITE_TITLE + ' 首页'}>pike<span>.</span></a>
+    <nav aria-label="主导航">{links.map(link => <a href={link.href} aria-current={active(link.href) ? 'page' : undefined}>{link.label}</a>)}</nav>
   </div>
 </header>
 <style>
-  .site-header { position: sticky; top: 0; z-index: 20; border-bottom: 1px solid color-mix(in srgb, var(--line) 88%, transparent); background: color-mix(in srgb, var(--paper) 91%, transparent); backdrop-filter: blur(18px); }
-  .nav-wrap { min-height: 70px; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; }
-  .brand { justify-self: start; font-size: 1.22rem; font-weight: 700; letter-spacing: -.045em; text-decoration: none; }
-  .brand i { color: var(--orange); font-style: normal; }
-  nav { display: flex; gap: 1.8rem; }
-  nav a { position: relative; color: var(--muted); font-size: .7rem; font-weight: 700; letter-spacing: .08em; text-decoration: none; transition: color .2s ease; }
-  nav a::after { content: ''; position: absolute; left: 0; right: 100%; bottom: -.55rem; height: 2px; background: var(--orange); transition: right .2s ease; }
-  nav a:hover, nav a.active { color: var(--ink); }
-  nav a:hover::after, nav a.active::after { right: 0; }
-  .issue { justify-self: end; color: var(--muted); font-size: .52rem; font-weight: 700; letter-spacing: .13em; }
-  @media (max-width: 620px) {
-    .nav-wrap { grid-template-columns: auto 1fr; min-height: 62px; }
-    nav { justify-self: end; gap: 1.1rem; }
-    .issue { display: none; }
-  }
+  .site-header { position: sticky; top: 0; z-index: 20; background: var(--paper); }
+  .nav-wrap { min-height: 80px; display: flex; justify-content: space-between; align-items: center; gap: 24px; border-bottom: 1px solid var(--line); }
+  .brand { display: inline-flex; align-items: baseline; min-height: 44px; font-size: 27px; font-weight: 700; letter-spacing: -1.2px; text-decoration: none; }
+  .brand > span { color: var(--orange); }
+  nav { display: flex; gap: 32px; align-items: center; }
+  nav a { display: inline-flex; align-items: center; min-height: 44px; color: var(--muted); font-size: 13px; text-decoration: none; position: relative; }
+  nav a[aria-current], nav a:hover { color: var(--ink); }
+  nav a[aria-current]::after { content: ''; position: absolute; bottom: 2px; left: 0; right: 0; height: 3px; border-radius: 3px; background: var(--orange); }
+  .skip-link { position: fixed; top: -100px; left: 16px; z-index: 50; padding: 10px 20px; background: var(--ink); color: white; }
+  .skip-link:focus { top: 10px; }
+  @media (max-width: 600px) { .nav-wrap { min-height: 68px; gap: 20px; } nav { gap: 26px; } .brand { font-size: 25px; } }
 </style>
