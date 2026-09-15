@@ -2,7 +2,7 @@
 title: "钥匙丢了以后"
 description: "不常用的那串钥匙不见了，脑子却一直替它留着一个位置。"
 pubDate: 2026-09-15
-order: 1
+order: 101
 tags: ["日常"]
 draft: false
 ---

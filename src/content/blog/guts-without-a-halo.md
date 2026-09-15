@@ -2,7 +2,7 @@
 title: "格斯不像一个“好人模板”，为什么仍然吸引人"
 description: "喜欢一个人物，未必等于赞成他的每一个举动。"
 pubDate: 2026-09-15
-order: 8
+order: 108
 tags: ["阅读"]
 draft: false
 ---

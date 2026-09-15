@@ -2,7 +2,7 @@
 title: "同一个模型，换个工具为什么像换了个人"
 description: "用起来顺不顺，模型名字只解释了其中一部分。"
 pubDate: 2026-09-15
-order: 17
+order: 117
 tags: ["技术"]
 draft: false
 ---

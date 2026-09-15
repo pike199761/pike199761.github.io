@@ -2,7 +2,7 @@
 title: "每次只练半小时，算不算认真健身"
 description: "每周三次，每次半小时。先给运动留得下位置，再谈别的。"
 pubDate: 2026-09-15
-order: 4
+order: 104
 tags: ["运动"]
 draft: false
 ---

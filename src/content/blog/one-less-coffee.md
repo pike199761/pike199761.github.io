@@ -2,7 +2,7 @@
 title: "少喝一杯咖啡之后"
 description: "睡得好了一晚，值得高兴，但先不急着宣布找到了原因。"
 pubDate: 2026-09-15
-order: 6
+order: 106
 tags: ["日常"]
 draft: false
 ---

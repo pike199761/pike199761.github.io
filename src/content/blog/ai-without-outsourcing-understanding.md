@@ -2,7 +2,7 @@
 title: "AI 可以帮我做，但我不想自己什么都不懂"
 description: "结果可以借力，理解这件事，我还是想给自己留一份。"
 pubDate: 2026-09-15
-order: 14
+order: 114
 tags: ["技术"]
 draft: false
 ---

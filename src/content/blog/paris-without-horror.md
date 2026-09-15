@@ -2,7 +2,7 @@
 title: "一首歌是怎么变“恐怖”的"
 description: "把 Else 的《PARIS》从恐怖电影解说里拿出来，它还剩下什么？"
 pubDate: 2026-09-15
-order: 7
+order: 107
 tags: ["音乐"]
 draft: false
 ---

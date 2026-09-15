@@ -2,7 +2,7 @@
 title: "看漫画，顺便认识几个字"
 description: "想把眼前这一格看明白，有时比抽象的学习计划更管用。"
 pubDate: 2026-09-15
-order: 10
+order: 110
 tags: ["阅读","语言"]
 draft: false
 ---

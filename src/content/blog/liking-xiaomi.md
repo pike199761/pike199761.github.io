@@ -2,7 +2,7 @@
 title: "喜欢一个品牌，和判断它的生意，是两回事"
 description: "我喜欢小米，也想把销量、目标和预期分开看。"
 pubDate: 2026-09-15
-order: 18
+order: 118
 tags: ["观察"]
 draft: false
 ---

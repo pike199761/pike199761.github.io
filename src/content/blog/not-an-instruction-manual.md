@@ -2,7 +2,7 @@
 title: "我不想和一本说明书聊天"
 description: "回答可以准确、完整，也可以让人读到一半就想关掉。"
 pubDate: 2026-09-15
-order: 15
+order: 115
 tags: ["技术","语言"]
 draft: false
 ---

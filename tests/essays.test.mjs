@@ -7,92 +7,92 @@ const expected = [
   {
     "slug": "lost-keys",
     "title": "钥匙丢了以后",
-    "order": 1
+    "order": 101
   },
   {
     "slug": "after-fried-chicken",
     "title": "吃完炸鸡的第二天",
-    "order": 3
+    "order": 103
   },
   {
     "slug": "half-hour-workouts",
     "title": "每次只练半小时，算不算认真健身",
-    "order": 4
+    "order": 104
   },
   {
     "slug": "tennis-feel",
     "title": "打不好球，先别急着怪自己",
-    "order": 5
+    "order": 105
   },
   {
     "slug": "one-less-coffee",
     "title": "少喝一杯咖啡之后",
-    "order": 6
+    "order": 106
   },
   {
     "slug": "paris-without-horror",
     "title": "一首歌是怎么变“恐怖”的",
-    "order": 7
+    "order": 107
   },
   {
     "slug": "guts-without-a-halo",
     "title": "格斯不像一个“好人模板”，为什么仍然吸引人",
-    "order": 8
+    "order": 108
   },
   {
     "slug": "a-word-called-bei",
     "title": "我只是说了个“呗”",
-    "order": 9
+    "order": 109
   },
   {
     "slug": "reading-manga-reading-words",
     "title": "看漫画，顺便认识几个字",
-    "order": 10
+    "order": 110
   },
   {
     "slug": "project-hail-mary",
     "title": "硬科幻的爽感，到底来自哪里",
-    "order": 11
+    "order": 111
   },
   {
     "slug": "after-the-credits",
     "title": "电影结束后，法庭才开始",
-    "order": 12
+    "order": 112
   },
   {
     "slug": "ai-without-outsourcing-understanding",
     "title": "AI 可以帮我做，但我不想自己什么都不懂",
-    "order": 14
+    "order": 114
   },
   {
     "slug": "not-an-instruction-manual",
     "title": "我不想和一本说明书聊天",
-    "order": 15
+    "order": 115
   },
   {
     "slug": "model-and-tools",
     "title": "同一个模型，换个工具为什么像换了个人",
-    "order": 17
+    "order": 117
   },
   {
     "slug": "liking-xiaomi",
     "title": "喜欢一个品牌，和判断它的生意，是两回事",
-    "order": 18
+    "order": 118
   },
   {
     "slug": "water-on-a-leaf",
     "title": "绿萝叶尖的一滴水",
-    "order": 20
+    "order": 120
   },
   {
     "slug": "shenzhen-sun",
     "title": "深圳的太阳，和别人追着晒的日光浴",
-    "order": 21
+    "order": 121
   },
   {
     "slug": "living-in-suzhou",
     "title": "适合旅游的城市，也适合过日子吗",
-    "order": 22
+    "order": 122
   }
 ];
 const root = new URL('../dist/', import.meta.url);
@@ -108,7 +108,7 @@ async function publicSources() {
 test('the selected eighteen essays have complete source prose, dates, tags and unique ordering', async () => {
   assert.equal(expected.length, 18);
   assert.equal(new Set(expected.map(post => post.order)).size, 18);
-  assert.deepEqual(expected.map(post => post.order), [1,3,4,5,6,7,8,9,10,11,12,14,15,17,18,20,21,22]);
+  assert.deepEqual(expected.map(post => post.order), [101,103,104,105,106,107,108,109,110,111,112,114,115,117,118,120,121,122]);
   const archive = await read('blog/index.html');
   const rss = await read('rss.xml');
   const sitemap = await read('sitemap-0.xml');
@@ -149,8 +149,15 @@ test('all public articles appear once in the archive and feed, while the home st
   assert.ok(archive.includes('共 ' + total + ' 篇文章'));
   assert.ok(home.includes('class="article-count"') && home.includes('>' + total + '</span>'));
   assert.equal((home.match(/<article(?:\s|>)/g) ?? []).length, 4);
-  for (const post of expected.slice(0,4)) assert.ok(home.includes(postUrl(post.slug)), post.slug);
-  assert.ok(!home.includes(postUrl(expected[4].slug)), 'not all essays are dumped onto the homepage');
+  const sorted = (await publicSources()).map(({file, source}) => ({
+    id: file.replace(/\.mdx?$/, ''),
+    data: {
+      pubDate: new Date(source.match(/^pubDate:\s*(.+)$/m)[1]),
+      order: Number(source.match(/^order:\s*(\d+)$/m)?.[1] ?? 999),
+    },
+  })).sort(comparePosts);
+  for (const post of sorted.slice(0,4)) assert.ok(home.includes(postUrl(post.id)), post.id);
+  assert.ok(!home.includes(postUrl(sorted[4].id)), 'not all essays are dumped onto the homepage');
   for (const content of [archive, rss]) {
     let cursor = -1;
     for (const post of expected) {
