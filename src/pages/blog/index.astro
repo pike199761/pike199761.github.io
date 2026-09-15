@@ -13,21 +13,25 @@ const tags = [...new Set(posts.flatMap(post => post.data.tags))];
 <html lang="zh-CN">
 <head><BaseHead title="文章 — PIKE" description={SITE_DESCRIPTION} /></head>
 <body><Header /><main id="main-content" tabindex="-1" class="shell archive">
-  <header class="page-heading"><h1>文章</h1></header>
+  <header class="page-heading"><div><p class="eyebrow">THE INDEX / 文章归档</p><h1>写过的，都在这。</h1></div><p class="index-count"><strong>{String(posts.length).padStart(2, '0')}</strong> 篇文章</p></header>
+  <div class="archive-layout">
   <div class="archive-tools" data-archive-tools hidden>
-    <div class="search-box"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 5 5"/></svg><label for="post-search" class="sr-only">搜索文章标题、简介或标签</label><input id="post-search" type="search" placeholder="搜一搜标题、简介或标签…" autocomplete="off" /></div>
-    <div class="tag-filters" role="group" aria-label="按标签筛选"><button type="button" data-tag="" aria-pressed="true">全部 <span>{posts.length}</span></button>{tags.map(tag => <button type="button" data-tag={tag} aria-pressed="false">{tag}</button>)}</div>
+    <p class="filter-label eyebrow">找点感兴趣的</p>
+    <div class="search-box"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 5 5"/></svg><label for="post-search" class="sr-only">搜索文章标题、简介或标签</label><input id="post-search" type="search" placeholder="搜索文章…" autocomplete="off" /></div>
+    <div class="tag-filters" role="group" aria-label="按标签筛选"><button type="button" data-tag="" aria-pressed="true">全部 <span>{posts.length}</span></button>{tags.map(tag => <button type="button" data-tag={tag} aria-pressed="false">{tag}<span>{posts.filter(post => post.data.tags.includes(tag)).length}</span></button>)}</div>
   </div>
-  <div class="list-heading"><p id="result-count" role="status" aria-live="polite">共 {posts.length} 篇文章</p></div>
+  <div class="archive-results">
+  <div class="list-heading"><span class="eyebrow">ALL ENTRIES</span><p id="result-count" role="status" aria-live="polite">共 {posts.length} 篇文章</p></div>
   <section class="post-list" aria-label="文章列表">
-    {posts.map(post => <a class="post-row" href={postUrl(post.id)} data-post data-search={[post.data.title, post.data.description, ...post.data.tags].join(' ')} data-tags={JSON.stringify(post.data.tags)}>
-      <div class="post-copy"><div class="post-meta"><FormattedDate date={post.data.pubDate} /><span>约 {readingMinutes(post.body)} 分钟</span></div><h2>{post.data.title}</h2><p>{post.data.description}</p><div class="tags">{post.data.tags.map(tag => <span class="pill">{tag}</span>)}</div></div>
+    {posts.map((post, index) => <a class="post-row" href={postUrl(post.id)} data-post data-search={[post.data.title, post.data.description, ...post.data.tags].join(' ')} data-tags={JSON.stringify(post.data.tags)}>
+      <div class="post-number" aria-hidden="true">{String(index + 1).padStart(2, '0')}</div><div class="post-copy"><div class="post-meta"><FormattedDate date={post.data.pubDate} /><span>约 {readingMinutes(post.body)} 分钟</span></div><h2>{post.data.title}</h2><p>{post.data.description}</p><div class="tags">{post.data.tags.map(tag => <span class="pill">{tag}</span>)}</div></div>
       <span class="arrow" aria-hidden="true">↗</span>
     </a>)}
   </section>
   {posts.length === 0 && <p class="empty-archive">第一篇还在路上。过阵子再来看看。</p>}
   <div class="no-results" data-no-results hidden><h2>没有找到文章</h2><p>没有找到匹配的文章，换个词，或者看看全部。</p><button class="button" type="button" data-reset>清除筛选，查看全部</button></div>
 
+  </div></div>
 </main><Footer />
 <script>
   const input = document.querySelector<HTMLInputElement>('#post-search');
@@ -77,34 +81,53 @@ const tags = [...new Set(posts.flatMap(post => post.data.tags))];
 </body></html>
 
 <style>
-  .archive { max-width: 1040px; }
-  .page-heading { padding-bottom: 20px; }
-  .archive-tools { max-width: 760px; margin-bottom: 24px; }
-  .search-box { display: flex; align-items: center; gap: 12px; max-width: 420px; padding: 0 14px; min-height: 48px; border: 1px solid var(--line); border-radius: 8px; background: var(--card); color: var(--muted); }
+  .index-count { display: flex; align-items: baseline; gap: 12px; }
+  .index-count strong { font: 400 64px/1 var(--serif); color: var(--ink); }
+  .archive-layout { display: grid; grid-template-columns: 210px minmax(0, 1fr); gap: 65px; align-items: start; }
+  .archive-tools { position: sticky; top: 112px; max-height: calc(100dvh - 136px); overflow-y: auto; scrollbar-width: thin; }
+  .filter-label { margin: 0 0 15px; font-size: 11px; }
+  .search-box { display: flex; align-items: center; gap: 10px; padding: 0 10px; min-height: 44px; border: 1px solid var(--line); background: transparent; color: var(--muted); }
   .search-box:focus-within { outline: 2px solid var(--orange-dark); outline-offset: 2px; }
-  .search-box svg { flex: 0 0 auto; }
-  .search-box input { width: 100%; min-width: 0; min-height: 46px; border: 0; background: transparent; color: var(--ink); font-size: 14px; outline: none; }
+  .search-box svg { flex: 0 0 auto; width: 15px; }
+  .search-box input { width: 100%; min-width: 0; min-height: 44px; border: 0; background: transparent; color: var(--ink); font-size: 12px; outline: none; }
   .search-box input::placeholder { color: var(--muted); }
-  .tag-filters { display: flex; flex-wrap: wrap; gap: 4px 20px; margin-top: 16px; }
-  .tag-filters button { position: relative; min-height: 44px; padding: 0 2px; background: none; border: 0; color: var(--muted); font-size: 13px; }
-  .tag-filters button span { margin-left: 4px; font-size: 11px; }
-  .tag-filters button[aria-pressed="true"] { color: var(--orange-dark); }
-  .tag-filters button[aria-pressed="true"]::after { content: ''; position: absolute; height: 1px; bottom: 4px; left: 2px; right: 2px; background: currentColor; }
-  .tag-filters button:hover { color: var(--ink); }
-  .list-heading { border-bottom: 1px solid var(--line); padding: 4px 0 14px; }
-  .list-heading p { margin: 0; color: var(--muted); font-size: 12px; }
-  .post-row { display: grid; grid-template-columns: minmax(0, 1fr) 20px; align-items: center; gap: 24px; padding: 28px; margin-top: 16px; border: 1px solid var(--line); border-radius: 12px; background: var(--card); text-decoration: none; }
-  .post-meta { display: flex; flex-wrap: wrap; gap: 18px; color: var(--muted); font-size: 12px; }
-  .post-copy h2 { margin: 12px 0 8px; font-size: 25px; font-weight: 500; line-height: 1.6; }
-  .post-copy p { margin: 0; max-width: 680px; color: var(--muted); font-size: 14px; line-height: 1.9; }
-  .tags { display: flex; flex-wrap: wrap; gap: 16px; margin-top: 14px; }
-  .tags .pill { padding: 0; border: 0; font-size: 11px; }
-  .arrow { color: var(--orange-dark); transition: transform .2s ease; }
-  .post-row:hover .arrow { transform: translate(3px, -3px); }
-  .post-row:hover h2 { color: var(--orange-dark); }
+  .tag-filters { display: flex; flex-direction: column; margin-top: 20px; }
+  .tag-filters button { display: flex; align-items: center; justify-content: space-between; position: relative; min-height: 44px; padding: 0 12px; background: none; border: 0; color: var(--muted); font-size: 12px; text-align: left; }
+  .tag-filters button span { font: 10px var(--mono); }
+  .tag-filters button[aria-pressed="true"] { background: var(--orange); color: var(--ink); }
+  .tag-filters button:hover:not([aria-pressed="true"]) { background: var(--paper-2); color: var(--ink); }
+  .archive-results { min-width: 0; }
+  .archive-layout:not(:has(.archive-tools:not([hidden]))) { grid-template-columns: 1fr; }
+  .list-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; border-bottom: 1px solid var(--ink); padding: 0 0 17px; }
+  .list-heading p { margin: 0; color: var(--muted); font-size: 11px; }
+  .list-heading .eyebrow { font-size: 10px; }
+  .post-row { display: grid; grid-template-columns: 34px minmax(0, 1fr) 22px; align-items: start; gap: 20px; padding: 29px 0; border-bottom: 1px solid var(--line); text-decoration: none; }
+  .post-number { padding-top: 1px; color: var(--muted); font: 11px/1.8 var(--mono); }
+  .post-meta { display: flex; flex-wrap: wrap; gap: 18px; color: var(--muted); font-size: 10px; }
+  .post-copy h2 { margin: 10px 0 11px; font-family: var(--serif); font-size: 25px; font-weight: 600; line-height: 1.6; }
+  .post-copy p { margin: 0; max-width: 680px; color: var(--muted); font-size: 13px; line-height: 1.95; }
+  .tags { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 15px; }
+  .tags .pill { font-size: 10px; }
+  .tags .pill::before { content: '#'; margin-right: 4px; }
+  .arrow { padding-top: 39px; font-size: 21px; transition: transform .2s ease; }
+  .post-row:hover .arrow { transform: translate(3px, -3px); color: var(--orange-dark); }
+  .post-row:hover h2 { text-decoration: underline; text-decoration-color: var(--orange); text-decoration-thickness: 1px; text-underline-offset: .25em; }
   .no-results { padding: 50px 0; }
-  .no-results h2 { margin: 0 0 12px; font-size: 22px; font-weight: 500; }
+  .no-results h2 { margin: 0 0 12px; font: 600 25px var(--serif); }
   .no-results p { color: var(--muted); font-size: 14px; margin-bottom: 24px; }
   .empty-archive { padding: 24px 0; color: var(--muted); }
-  @media (max-width: 600px) { .post-row { gap: 16px; padding: 22px; } .post-copy h2 { font-size: 22px; } .post-copy p { font-size: 13px; } }
+  @media (max-width: 1000px) { .archive-layout { grid-template-columns: 180px minmax(0, 1fr); gap: 36px; } .post-row { gap: 12px; grid-template-columns: 25px minmax(0, 1fr) 18px; } }
+  @media (max-width: 760px) {
+    .archive-layout { grid-template-columns: 1fr; gap: 26px; }
+    .archive-tools { position: static; max-height: none; overflow: visible; }
+    .filter-label { display: none; }
+    .index-count strong { font-size: 36px; }
+    .tag-filters { flex-direction: row; flex-wrap: wrap; margin-top: 14px; gap: 4px; }
+    .tag-filters button { min-height: 44px; padding: 0 11px; gap: 8px; }
+    .tag-filters button span { display: none; }
+    .post-row { padding: 24px 0; gap: 9px; grid-template-columns: 22px minmax(0, 1fr) 16px; }
+    .post-copy h2 { font-size: 23px; }
+    .post-copy p { font-size: 12px; }
+    .arrow { font-size: 18px; }
+  }
 </style>

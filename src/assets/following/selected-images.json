@@ -1,0 +1,86 @@
+[
+  {
+    "id": "theshy",
+    "input": "images.jpg",
+    "originalDimensions": [
+      250,
+      250
+    ],
+    "crop": [
+      0,
+      0,
+      250,
+      250
+    ],
+    "dimensions": [
+      250,
+      250
+    ],
+    "source": "Selected and supplied by blog owner; original photographer/source not supplied.",
+    "sha256": "605da7aaeeb96f5a25872269ef8a60c1bb86ac9af57d50d232140d60fa80100d",
+    "displayTreatment": "SVG outline mask from edge-connected white studio background; lower-edge CSS fade. Original face colors preserved on orange."
+  },
+  {
+    "id": "ronaldo",
+    "input": "images (2).jpg",
+    "originalDimensions": [
+      547,
+      365
+    ],
+    "crop": [
+      63,
+      5,
+      350,
+      365
+    ],
+    "dimensions": [
+      287,
+      360
+    ],
+    "source": "Selected and supplied by blog owner; original photographer/source not supplied.",
+    "sha256": "0bda0a7ff69855509544d8edc159855248c4d899031a364e3fd0c29aee61a8bf",
+    "displayTreatment": "Hand-traced SVG silhouette mask; lower-edge CSS fade. No face regeneration."
+  },
+  {
+    "id": "alcaraz",
+    "input": "images (1).jpg",
+    "originalDimensions": [
+      365,
+      547
+    ],
+    "crop": [
+      12,
+      28,
+      355,
+      477
+    ],
+    "dimensions": [
+      343,
+      449
+    ],
+    "source": "Selected and supplied by blog owner; original photographer/source not supplied.",
+    "sha256": "e535fad71f5aef6ea8cb896a135b84aa66453b136e25f6f0a4b2aeae42d7d506",
+    "displayTreatment": "Hand-traced SVG silhouette mask; lower-edge CSS fade. No face regeneration."
+  },
+  {
+    "id": "sinner",
+    "input": "images (3).jpg",
+    "originalDimensions": [
+      547,
+      365
+    ],
+    "crop": [
+      196,
+      18,
+      508,
+      216
+    ],
+    "dimensions": [
+      312,
+      198
+    ],
+    "source": "Selected and supplied by blog owner; original photographer/source not supplied.",
+    "sha256": "373f4afa7f9878652670940974dbc20cb385dcae69bb9e3a66c84a99805b7429",
+    "displayTreatment": "Hand-traced SVG silhouette mask; lower-edge CSS fade. No face regeneration."
+  }
+]

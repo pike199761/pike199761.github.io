@@ -18,7 +18,7 @@ const toc = headings.filter(heading => heading.depth === 2 || heading.depth === 
     <a class="text-link article-back" href="/blog/"><span aria-hidden="true">←</span> 所有文章</a>
     <article>
       <header class="article-head">
-        <div class="article-meta"><span class="author">PIKE</span><FormattedDate date={pubDate} /><span>约 {minutes} 分钟阅读</span></div>
+        <div class="article-meta"><span class="author"><span aria-hidden="true">✳</span> PIKE</span><FormattedDate date={pubDate} /><span>约 {minutes} 分钟阅读</span></div>
         <h1>{title}</h1>
         <p class="description">{description}</p>
         <div class="article-tags">{tags.map(tag => <a class="pill" href={'/blog/?tag=' + encodeURIComponent(tag)}>{tag}</a>)}</div>
@@ -50,6 +50,8 @@ const toc = headings.filter(heading => heading.depth === 2 || heading.depth === 
       progress.style.transform = `scaleX(${ratio})`;
       let current: HTMLAnchorElement | undefined;
       for (const section of sections) if (section.heading!.getBoundingClientRect().top <= 165) current = section.link;
+      // The final section may be too short to reach the activation line.
+      if (window.scrollY + window.innerHeight >= document.documentElement.scrollHeight - 2) current = sections.at(-1)?.link;
       for (const link of links) {
         if (link === current) link.setAttribute('aria-current', 'location');
         else link.removeAttribute('aria-current');
@@ -66,33 +68,33 @@ const toc = headings.filter(heading => heading.depth === 2 || heading.depth === 
   </script>
 </body></html>
 <style>
-  .article-shell { max-width: 1040px; }
-  .article-back { margin-top: 28px; color: var(--muted); font-size: 13px; }
-  .article-head { max-width: 710px; margin: 28px 0 42px 220px; padding-bottom: 32px; border-bottom: 1px solid var(--line); }
-  .article-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 17px; color: var(--muted); font-size: 12px; }
-  .author { font-size: 11px; color: var(--orange-dark); letter-spacing: .1em; }
-  h1 { margin: 23px 0 19px; font-size: clamp(28px, 3.3vw, 38px); font-weight: 500; line-height: 1.5; letter-spacing: -.04em; }
-  .description { margin: 0; color: var(--muted); font-size: 15px; line-height: 1.9; }
-  .article-tags { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 22px; }
-  .article-tags a { padding: 8px 0; margin-right: 12px; border: 0; text-decoration: none; }
-  .article-tags a:hover { color: var(--orange-dark); border-color: var(--orange); }
-  .updated { font-size: 12px; color: var(--muted); margin-bottom: 0; }
-  .reading-layout { display: grid; grid-template-columns: 170px minmax(0, 710px); gap: 50px; align-items: start; }
-  .toc { position: sticky; top: 120px; }
-  summary { display: flex; align-items: center; justify-content: space-between; min-height: 44px; padding-bottom: 8px; border-bottom: 1px solid var(--line); font-size: 12px; cursor: pointer; list-style: none; }
+  .article-back { margin-top: 28px; color: var(--muted); font-size: 11px; }
+  .article-head { max-width: 700px; margin: 38px auto 40px; padding-bottom: 30px; border-bottom: 1px solid var(--line); }
+  .article-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 19px; color: var(--muted); font-size: 11px; }
+  .author { display: flex; align-items: center; gap: 6px; font: 11px var(--mono); color: var(--ink); letter-spacing: .1em; }
+  .author > span { color: var(--orange-dark); font-size: 21px; }
+  h1 { margin: 25px 0 22px; font-family: var(--serif); font-size: clamp(30px, 3.8vw, 44px); font-weight: 600; line-height: 1.5; letter-spacing: -.025em; }
+  .description { margin: 0; color: var(--muted); font-size: 14px; line-height: 1.95; }
+  .article-tags { display: flex; flex-wrap: wrap; gap: 15px; margin-top: 19px; }
+  .article-tags a { min-height: 44px; text-decoration: none; font-size: 11px; }
+  .article-tags a::before { content: '#'; margin-right: 4px; }
+  .article-tags a:hover { color: var(--orange-dark); }
+  .updated { font-size: 11px; color: var(--muted); margin-bottom: 0; }
+  .reading-layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 700px) minmax(0, 1fr); column-gap: 32px; align-items: start; }
+  .toc { grid-column: 1; position: sticky; top: 112px; }
+  summary { display: flex; align-items: center; justify-content: space-between; min-height: 44px; padding-bottom: 8px; border-bottom: 1px solid var(--ink); font-size: 11px; cursor: pointer; list-style: none; }
   summary::-webkit-details-marker { display: none; }
   details:not([open]) summary span { transform: rotate(-90deg); }
   .toc nav { display: flex; flex-direction: column; padding-top: 12px; }
-  .toc a { display: block; border-left: 2px solid transparent; margin-left: -1px; padding: 9px 0 9px 12px; color: var(--muted); font-size: 12px; line-height: 1.7; text-decoration: none; }
-  .toc a.nested { padding-left: 24px; font-size: 11px; }
+  .toc a { display: block; border-left: 2px solid transparent; margin-left: -1px; padding: 10px 0 10px 12px; color: var(--muted); font-size: 11px; line-height: 1.8; text-decoration: none; }
+  .toc a.nested { padding-left: 23px; }
   .toc a[aria-current], .toc a:hover { color: var(--orange-dark); border-left-color: var(--orange); }
-  .without-toc .article-body { grid-column: 2; }
-  .article-body { min-width: 0; }
-  .end-mark { text-align: center; padding: 30px 0 36px; color: var(--muted); font-size: 17px; letter-spacing: .3em; }
-  .article-actions { display: flex; align-items: center; justify-content: space-between; gap: 20px; border-top: 1px solid var(--line); padding-top: 17px; }
-  .article-actions a { font-size: 12px; }
+  .article-body { grid-column: 2; min-width: 0; }
+  .end-mark { text-align: center; padding: 20px 0 40px; color: var(--orange-dark); font-size: 18px; letter-spacing: .3em; }
+  .article-actions { display: flex; align-items: center; justify-content: space-between; gap: 20px; border-top: 1px solid var(--line); padding-top: 18px; }
+  .article-actions a { font-size: 11px; }
   .reading-progress { position: fixed; top: 0; left: 0; width: 100%; height: 3px; z-index: 30; pointer-events: none; }
   .reading-progress span { display: block; width: 100%; height: 100%; background: var(--orange); transform: scaleX(0); transform-origin: left; }
-  @media (max-width: 850px) { .article-head { margin-left: 0; max-width: none; } .reading-layout { grid-template-columns: 1fr; gap: 30px; } .toc { position: static; padding: 14px 20px; border-radius: 4px; background: var(--paper-2); } .without-toc .article-body { grid-column: auto; } .article-shell { max-width: 720px; } }
-  @media (max-width: 600px) { .article-back { margin-top: 20px; } .article-head { margin-top: 20px; margin-bottom: 25px; padding-bottom: 25px; } h1 { font-size: 28px; } .article-meta { gap: 12px; font-size: 11px; } .description { font-size: 14px; } .toc a { min-height: 44px; display: flex; align-items: center; } }
+  @media (max-width: 1080px) { .article-shell { max-width: 700px; } .article-head { margin-left: 0; margin-right: 0; } .reading-layout { grid-template-columns: 1fr; row-gap: 26px; } .toc { position: static; padding: 14px 20px; background: var(--paper-2); } .article-body { grid-column: 1; } }
+  @media (max-width: 760px) { .article-back { margin-top: 15px; } .article-head { margin-top: 22px; margin-bottom: 28px; padding-bottom: 20px; } h1 { font-size: clamp(26px, 7.7vw, 30px); margin-block: 20px 18px; } .article-meta { gap: 13px; font-size: 10px; } .description { font-size: 13px; } .toc a { min-height: 44px; display: flex; align-items: center; } .article-actions { gap: 12px; } }
 </style>

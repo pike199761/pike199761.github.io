@@ -124,13 +124,16 @@ test('drafts are excluded from article routes as well as the feed and lists', as
   assert.match(await read('sitemap-index.xml'), /sitemap/);
 });
 
-test('home keeps one clear article section without a decorative cover or interest grid', async () => {
+test('editorial home keeps articles first, a local illustration and no external fonts', async () => {
   const html = await read('index.html');
-  assert.equal((html.match(/<section(?:\s|>)/g) ?? []).length, 1);
+  assert.equal((html.match(/<section(?:\s|>)/g) ?? []).length, 2);
+  assert.ok(html.indexOf('id="latest-heading"') < html.indexOf('id="following-heading"'));
   assert.match(html, /id="latest-heading"/);
   assert.match(html, /阅读全文/);
   assert.match(html, /全部文章/);
-  assert.doesNotMatch(html, /<img(?:\s|>)|HELLO, I'M PIKE|KEEP CARING|兴趣所在|THOUGHTS &amp;/);
+  assert.match(html, /class="masthead"/);
+  assert.match(html, /class="journal-art" aria-hidden="true"/);
+  assert.doesNotMatch(html, /HELLO, I'M PIKE|KEEP CARING|兴趣所在/);
   assert.doesNotMatch(html, /as="font"|fonts\.googleapis|fonts\.gstatic/);
 });
 
@@ -153,10 +156,85 @@ test('layered theme separates brand orange from accessible text colors and match
       assert.ok(contrast >= 4.5, `${text} on ${background}: ${contrast.toFixed(2)}:1`);
     }
   }
+  const orangeContrast = (luminance(color('orange')) + 0.05) / (luminance(color('ink')) + 0.05);
+  assert.ok(orangeContrast >= 4.5, `ink on brand orange: ${orangeContrast.toFixed(2)}:1`);
   assert.equal(color('orange'), '#ff6900');
   assert.notEqual(color('paper'), color('orange'));
   assert.notEqual(color('paper'), color('card'));
   assert.ok((await read('index.html')).includes(`name="theme-color" content="${color('paper')}"`));
   assert.match(await read('favicon.svg'), /fill="#ff6900"/);
-  assert.match(await read('index.html'), /class="intro-art" aria-hidden="true"/);
+  assert.match(await read('index.html'), /class="journal-art" aria-hidden="true"/);
+});
+
+
+test('selected portraits stay local, responsive and within the original resolution', async () => {
+  const html = await read('index.html');
+  const { stat } = await import('node:fs/promises');
+  const { default: sharp } = await import('sharp');
+  const manifest = JSON.parse(await readFile(new URL('../src/assets/following/selected-images.json', import.meta.url), 'utf8'));
+  const people = [...html.matchAll(/<figure\b[^>]*data-person="([^"]+)"[^>]*>([\s\S]*?)<\/figure>/g)];
+  assert.deepEqual(people.map(match => match[1]), ['theshy', 'ronaldo', 'alcaraz', 'sinner']);
+  let totalFullSizeBytes = 0;
+  for (const [, id, figure] of people) {
+    const { dimensions: [nativeWidth, nativeHeight], originalDimensions, crop } = manifest.find(item => item.id === id);
+    assert.ok(nativeWidth <= originalDimensions[0] && nativeHeight <= originalDimensions[1], id);
+    assert.deepEqual([crop[2] - crop[0], crop[3] - crop[1]], [nativeWidth, nativeHeight]);
+    const image = figure.match(/<img\b[^>]*>/)?.[0];
+    assert.ok(image, id);
+    assert.match(image, /alt="[^"<>]{12,}"/, id);
+    assert.match(image, /loading="lazy"/, id);
+    assert.match(image, /decoding="async"/, id);
+    assert.ok(image.includes(`width="${nativeWidth}"`), id);
+    assert.ok(image.includes(`height="${nativeHeight}"`), id);
+    assert.match(image, /sizes="[^"]+"/, id);
+    const sourceSet = image.match(/srcset="([^"]+)"/)?.[1];
+    assert.ok(sourceSet, id);
+    const widths = [];
+    for (const candidate of sourceSet.split(',')) {
+      const [src, descriptor] = candidate.trim().split(/\s+/);
+      const width = Number.parseInt(descriptor, 10);
+      widths.push(width);
+      assert.match(src, /^\/_astro\/[^/]+\.webp$/);
+      assert.ok(width <= nativeWidth, `must not upscale ${id}`);
+      const asset = new URL(src.slice(1), root);
+      const size = (await stat(asset)).size;
+      const metadata = await sharp(await readFile(asset)).metadata();
+      assert.equal(metadata.width, width, id);
+      assert.ok(Math.abs(metadata.height - width * nativeHeight / nativeWidth) <= 1, id);
+      assert.ok(size > 1000 && size < 40_000, `photo size: ${id}`);
+      if (width === nativeWidth) totalFullSizeBytes += size;
+    }
+    assert.deepEqual(widths, [160, nativeWidth]);
+  }
+  assert.ok(totalFullSizeBytes < 80_000, 'portrait strip must stay lightweight');
+});
+
+test('portrait masks fade images, keep captions readable and do not invent photo credits', async () => {
+  const html = await read('index.html');
+  const component = await readFile(new URL('../src/components/Following.astro', import.meta.url), 'utf8');
+  const { default: sharp } = await import('sharp');
+  const masks = [...html.matchAll(/--portrait-mask: url\('([^']+)'\)/g)];
+  assert.equal(masks.length, 4, 'All portraits use cutouts so orange does not tint the faces');
+  for (const [, src] of masks) {
+    assert.match(src, /^\/_astro\/(theshy|ronaldo|alcaraz|sinner)-mask\.[^/]+\.svg$/);
+    const buffer = await readFile(new URL(src.slice(1), root));
+    assert.match(buffer.toString(), /viewBox=/);
+    const { data, info } = await sharp(buffer).ensureAlpha().raw().toBuffer({ resolveWithObject: true });
+    const alphas = [...data].filter((_, index) => index % info.channels === info.channels - 1);
+    assert.ok(alphas.some(alpha => alpha === 0), src);
+    assert.ok(alphas.some(alpha => alpha === 255), src);
+  }
+  assert.doesNotMatch(component, /mix-blend-mode: multiply/);
+  assert.match(component, /background: var\(--orange\)/);
+  assert.match(component, /--muted: var\(--ink\)/);
+  assert.match(component, /-webkit-mask-image: linear-gradient/);
+  assert.match(component, /mask-image: linear-gradient/);
+  assert.match(component, /<\/div>\s*<\/div>\s*<\/div>\s*<figcaption>/);
+  assert.doesNotMatch(html, /url\('null'\)|url\('undefined'\)/);
+  assert.match(html, /<details class="photo-credits"/);
+  assert.match(html, /<summary[^>]*>图片说明<\/summary>/);
+  assert.match(html, /图片由博主选用/);
+  assert.match(html, /原始摄影来源待补充/);
+  assert.doesNotMatch(html, /Wikimedia Commons|creativecommons\.org|Ludovic Péron|Hameltion/);
+  assert.doesNotMatch(component, /<script|client:/);
 });

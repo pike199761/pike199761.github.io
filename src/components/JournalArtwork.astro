@@ -1,0 +1,49 @@
+---
+// A small, self-contained print-inspired still life. No external image requests.
+---
+<div class="journal-art" aria-hidden="true">
+  <svg viewBox="0 0 660 480" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <pattern id="paper-grain" width="6" height="6" patternUnits="userSpaceOnUse"><circle cx="1" cy="2" r=".55" fill="#24251f" opacity=".12"/><circle cx="4" cy="5" r=".4" fill="#fffdf8" opacity=".5"/></pattern>
+      <pattern id="note-lines" width="260" height="23" patternUnits="userSpaceOnUse"><path d="M0 22.5H260" stroke="#d7d4ca" stroke-width=".8"/></pattern>
+      <pattern id="print-lines" width="5" height="5" patternUnits="userSpaceOnUse" patternTransform="rotate(-35)"><path d="M0 0V5" stroke="#24251f" stroke-width="1.1"/></pattern>
+    </defs>
+    <path fill="#ff6900" d="M0 0h660v480H0z"/>
+    <circle cx="80" cy="85" r="158" stroke="#24251f" stroke-width=".8" opacity=".3"/>
+    <circle cx="80" cy="85" r="177" stroke="#24251f" stroke-width=".8" opacity=".3"/>
+    <circle cx="80" cy="85" r="196" stroke="#24251f" stroke-width=".8" opacity=".3"/>
+    <path d="M0 365h660" stroke="#24251f" stroke-width=".8" opacity=".24"/>
+    <ellipse cx="363" cy="414" rx="224" ry="19" fill="#24251f" opacity=".12"/>
+    <g transform="translate(176 66) rotate(-9 155 165)">
+      <path d="M9 13h292v326H9z" fill="#24251f"/>
+      <path d="M0 0h287v326H0z" fill="#e7e1d5"/>
+      <path d="M0 0h287v313H0z" fill="#fffdf8"/>
+      <path d="M15 304h270M15 308h270M15 313h270M15 318h270" stroke="#b7b2a8" stroke-width=".8"/>
+      <path d="M21 0v301" stroke="#c9c1b4"/>
+      <path d="M40 145h221v139H40z" fill="url(#note-lines)"/>
+      <text x="40" y="41" fill="#65635b" font-size="9" font-family="Consolas,monospace" letter-spacing="2">A PERSONAL JOURNAL</text>
+      <text x="35" y="114" fill="#24251f" font-size="73" font-weight="800" font-family="Arial,sans-serif" letter-spacing="-5">notes.</text>
+      <path d="M41 162c21-12 29 12 53-1s23 10 44-3 27 9 43-3M42 184c21-12 33 9 55-1s26 8 43-3" stroke="#24251f" stroke-width="2" stroke-linecap="round"/>
+      <circle cx="218" cy="244" r="30" fill="#ff6900"/>
+      <path d="m203 244 10 10 20-22" stroke="#24251f" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="m250 0 37 36h-37V0Z" fill="#eeeae1"/>
+      <path d="m250 0 37 36" stroke="#d7d4ca"/>
+    </g>
+    <g transform="translate(474 143) rotate(22)">
+      <path d="M0 0h13v225H0z" fill="#24251f"/>
+      <path d="M3 0h2v225H3z" fill="#65635b"/>
+      <path d="m0 225 6.5 26 6.5-26" fill="#e7d3b0"/><path d="m4.5 243 2 8 2-8" fill="#24251f"/>
+      <path d="M0-13h13V0H0z" fill="#fffdf8"/>
+    </g>
+    <circle cx="129" cy="353" r="57" fill="#fffdf8"/>
+    <circle cx="129" cy="353" r="57" fill="url(#print-lines)"/>
+    <circle cx="129" cy="353" r="20" fill="#ff6900"/>
+    <path d="M32 32h16m-8-8v16M612 432h16m-8-8v16" stroke="#24251f" stroke-width="1"/>
+    <text x="31" y="451" fill="#24251f" font-family="Consolas,monospace" font-size="9" letter-spacing="2">PIKE — NOTES &amp; THINGS</text>
+    <path fill="url(#paper-grain)" d="M0 0h660v480H0z"/>
+  </svg>
+</div>
+<style>
+  .journal-art { overflow: hidden; background: var(--orange); }
+  svg { display: block; width: 100%; height: 100%; object-fit: cover; }
+</style>

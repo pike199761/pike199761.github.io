@@ -4,6 +4,8 @@ import BaseHead from '../components/BaseHead.astro';
 import Footer from '../components/Footer.astro';
 import FormattedDate from '../components/FormattedDate.astro';
 import Header from '../components/Header.astro';
+import JournalArtwork from '../components/JournalArtwork.astro';
+import Following from '../components/Following.astro';
 import { SITE_DESCRIPTION, SITE_TITLE } from '../consts';
 import { comparePosts, postUrl, readingMinutes } from '../lib/posts';
 const posts = (await getCollection('blog', ({ data }) => !data.draft)).sort(comparePosts);
@@ -15,87 +17,114 @@ const [featured, ...rest] = posts;
 <body>
   <Header />
   <main id="main-content" tabindex="-1" class="shell home">
-    <header class="intro">
-      <div class="intro-copy"><h1><span>把喜欢的人和事，</span><span>写得久一点<span class="period">。</span></span></h1></div>
-      <div class="intro-art" aria-hidden="true"><span class="punctuation"></span></div>
+    <header class="masthead">
+      <h1>pike<span>.</span><span class="sr-only"> 的个人博客</span></h1>
+      <div class="masthead-note"><p>有想写的，<br />就放在这里。</p><span class="eyebrow">NOTES ON THINGS I LIKE</span></div>
     </header>
-
+    <div class="edition-line"><p>随笔、兴趣，以及一些折腾。</p><span>SINCE 2026 <span aria-hidden="true">↙</span></span></div>
     <section class="latest" aria-labelledby="latest-heading">
-      <div class="section-label"><span class="small-line" aria-hidden="true"></span><h2 id="latest-heading">最近写的</h2></div>
-      <div class="entries">
-        {featured ? <article class="featured">
-          <div class="entry-meta"><FormattedDate date={featured.data.pubDate} /><span aria-hidden="true">·</span><span>约 {readingMinutes(featured.body)} 分钟</span></div>
-          <h3><a class="entry-title" href={postUrl(featured.id)}>{featured.data.title}</a></h3>
-          <p class="entry-description">{featured.data.description}</p>
-          <a class="text-link read-link" href={postUrl(featured.id)} aria-label={'阅读全文：' + featured.data.title}>阅读全文 <span aria-hidden="true">→</span></a>
-        </article> : <p class="empty-note">还没有文章。</p>}
-        {rest.length > 0 && <div class="recent-list">{rest.slice(0, 3).map(post => <article><div class="recent-meta"><FormattedDate date={post.data.pubDate} /></div><h3><a href={postUrl(post.id)}>{post.data.title}<span aria-hidden="true">→</span></a></h3></article>)}</div>}
-        <a class="text-link archive-link" href="/blog/">全部文章 <span class="article-count">{posts.length}</span><span aria-hidden="true">↗</span></a>
-      </div>
+      <div class="section-heading"><h2 id="latest-heading"><span class="orange-dot" aria-hidden="true"></span>最近写的 <span class="eyebrow">THE JOURNAL</span></h2><a class="text-link" href="/blog/">全部文章 <span class="article-count">{posts.length}</span><span aria-hidden="true">↗</span></a></div>
+      {featured ? <article class="featured">
+        <JournalArtwork />
+        <div class="featured-copy">
+          <div class="feature-label"><span>最新一篇</span><span class="eyebrow">NO. 01</span></div>
+          <div class="feature-text"><div class="entry-meta"><FormattedDate date={featured.data.pubDate} /><span aria-hidden="true">/</span><span>约 {readingMinutes(featured.body)} 分钟</span></div>
+          <h3><a href={postUrl(featured.id)}>{featured.data.title.split(/(?<=[，：])/u).map(phrase => <span class="title-phrase">{phrase}</span>)}</a></h3>
+          <p class="entry-description">{featured.data.description}</p></div>
+          <a class="read-link" href={postUrl(featured.id)} aria-label={'阅读全文：' + featured.data.title}>阅读全文 <span aria-hidden="true">↗</span></a>
+        </div>
+      </article> : <p class="empty-note">还没有文章。</p>}
+      {rest.length > 0 && <div class="recent-list">{rest.slice(0, 3).map((post, index) => <article>
+        <div class="recent-top"><span class="eyebrow">NO. {String(index + 2).padStart(2, '0')}</span><span class="recent-tag">{post.data.tags[0]}</span></div>
+        <h3><a href={postUrl(post.id)}>{post.data.title.split(/(?<=[，：])/u).map(phrase => <span class="title-phrase">{phrase}</span>)}</a></h3>
+        <p>{post.data.description}</p>
+        <div class="recent-bottom"><span><FormattedDate date={post.data.pubDate} /> · {readingMinutes(post.body)} 分钟</span><a href={postUrl(post.id)} aria-label={'阅读：' + post.data.title}><span aria-hidden="true">↗</span></a></div>
+      </article>)}</div>}
+      <a class="archive-link" href="/blog/"><span>不止这些。<small>去目录里翻翻</small></span><span class="archive-right">全部 {posts.length} 篇 <span aria-hidden="true">↗</span></span></a>
     </section>
+    <Following />
   </main>
   <Footer />
 </body>
 </html>
 <style>
-  .home { max-width: 1040px; min-height: calc(100svh - 240px); }
-  .intro { display: grid; grid-template-columns: minmax(0, 1fr) 288px; align-items: center; gap: 40px; padding: 44px 0 48px; }
-  .intro-copy { padding-block: 20px; }
-  h1 { margin: 0; font-size: clamp(36px, 4.3vw, 54px); font-weight: 500; letter-spacing: -.055em; line-height: 1.55; }
-  h1 > span { display: block; }
-  .period { color: var(--orange-dark); }
-  .intro-art { position: relative; height: 258px; overflow: hidden; isolation: isolate; border-radius: 32px 32px 8px 32px; background: var(--orange); }
-  .intro-art::before, .intro-art::after { content: ''; position: absolute; width: 290px; height: 290px; border: 1px solid rgb(255 254 253 / 28%); border-radius: 50%; pointer-events: none; }
-  .intro-art::before { top: -170px; left: -145px; }
-  .intro-art::after { top: -145px; left: -170px; }
-  .punctuation { position: absolute; right: 35px; bottom: 32px; width: 138px; height: 138px; border: 27px solid var(--card); border-radius: 50%; }
-  .latest { display: grid; grid-template-columns: 160px minmax(0, 1fr); column-gap: 44px; padding: 32px; border: 1px solid var(--line); border-radius: 16px; background: var(--card); }
-  .section-label { display: flex; align-items: center; gap: 12px; align-self: start; min-height: 25px; }
-  .section-label h2 { margin: 0; font-size: 13px; font-weight: 400; color: var(--muted); }
-  .small-line { width: 6px; height: 6px; border-radius: 50%; background: var(--orange); }
-  .entry-meta { display: flex; align-items: center; flex-wrap: wrap; gap: 12px; color: var(--muted); font-size: 12px; line-height: 25px; }
-  .featured h3 { margin: 14px 0 10px; font-size: clamp(23px, 2.6vw, 30px); font-weight: 500; letter-spacing: -.025em; line-height: 1.5; }
-  .entry-title { text-decoration: none; transition: color .18s ease; }
-  .entry-title:hover { color: var(--orange-dark); }
-  .entry-description { max-width: 600px; margin: 0; color: var(--muted); font-size: 15px; line-height: 1.9; }
-  .read-link { margin-top: 18px; gap: 18px; color: var(--orange-dark); }
-  .read-link span { display: inline-flex; align-items: center; justify-content: center; width: 30px; height: 30px; border-radius: 50%; background: var(--orange-soft); font-size: 18px; }
-  .archive-link { margin-top: 20px; gap: 10px; color: var(--muted); font-size: 12px; }
-  .archive-link:hover { color: var(--ink); }
-  .archive-link .article-count { color: var(--muted); font-size: 11px; transform: none; }
-  .recent-list { margin-top: 28px; }
-  .recent-list article { border-top: 1px solid var(--line); padding: 22px 0; }
-  .recent-meta { color: var(--muted); font-size: 12px; }
-  .recent-list h3 { margin: 8px 0 0; font-size: 19px; font-weight: 500; line-height: 1.7; }
-  .recent-list a { display: flex; align-items: baseline; justify-content: space-between; gap: 24px; text-decoration: none; }
-  .recent-list a > span { color: var(--orange-dark); transition: transform .2s ease; }
-  .recent-list a:hover > span { transform: translateX(4px); }
-  .empty-note { margin: 0; color: var(--muted); font-size: 15px; }
-  @media (max-width: 900px) {
-    .intro { grid-template-columns: minmax(0, 1fr) 220px; gap: 28px; }
-    .intro-art { height: 232px; }
-    .punctuation { width: 116px; height: 116px; border-width: 23px; right: 24px; bottom: 28px; }
-    .latest { grid-template-columns: 110px minmax(0, 1fr); gap: 28px; padding: 28px; }
+  .masthead { display: flex; align-items: center; justify-content: space-between; gap: 40px; padding: 20px 0 24px; }
+  h1 { margin: 0 0 0 -10px; font: 900 clamp(120px, 18.5vw, 220px)/1.08 Arial, Helvetica, sans-serif; letter-spacing: -.085em; }
+  h1 > span:not(.sr-only) { color: var(--orange); }
+  .masthead-note { padding-top: 28px; width: 260px; }
+  .masthead-note p { margin: 0 0 20px; font-family: var(--serif); font-size: 26px; line-height: 1.7; letter-spacing: .06em; }
+  .masthead-note .eyebrow { font-size: 9px; letter-spacing: .1em; }
+  .edition-line { display: flex; align-items: center; justify-content: space-between; gap: 20px; border-block: 1px solid var(--ink); padding-block: 11px; }
+  .edition-line p { margin: 0; font-size: 11px; letter-spacing: .08em; }
+  .edition-line > span { font: 10px var(--mono); color: var(--muted); }
+  .edition-line > span span { margin-left: 24px; color: var(--ink); font-size: 16px; }
+  .latest { padding-top: 29px; }
+  .section-heading { display: flex; align-items: center; justify-content: space-between; gap: 15px; margin-bottom: 18px; }
+  .section-heading h2 { display: flex; align-items: center; gap: 12px; margin: 0; font-size: 13px; font-weight: 500; }
+  .section-heading .eyebrow { margin-left: 8px; font-size: 9px; }
+  .orange-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--orange); }
+  .section-heading .text-link { font-size: 11px; gap: 9px; }
+  .article-count { color: var(--muted); font: 10px var(--mono); }
+  .featured { display: grid; grid-template-columns: 1.16fr 1fr; border-bottom: 1px solid var(--ink); padding-bottom: 32px; }
+  .featured-copy { display: flex; flex-direction: column; align-items: start; padding: 5px 0 3px 42px; }
+  .feature-label { display: flex; width: 100%; align-items: center; justify-content: space-between; font-size: 10px; color: var(--muted); }
+  .feature-label > span:first-child { display: inline-block; border: 1px solid var(--line); padding: 2px 8px; }
+  .feature-label .eyebrow { font-size: 9px; }
+  .feature-text { margin-block: auto; padding: 26px 0; }
+  .entry-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; font-size: 10px; color: var(--muted); }
+  .featured h3 { margin: 16px 0 18px; font-family: var(--serif); font-size: clamp(26px, 2.8vw, 36px); font-weight: 600; line-height: 1.55; letter-spacing: -.03em; }
+  h3 a { text-decoration: none; }
+  .title-phrase { display: inline-block; max-width: 100%; text-wrap: pretty; }
+  h3 a:hover { text-decoration: underline; text-decoration-thickness: 1px; }
+  .entry-description { margin: 0; font-size: 13px; line-height: 1.95; color: var(--muted); }
+  .read-link { display: flex; width: 100%; align-items: center; justify-content: space-between; min-height: 44px; font-size: 11px; text-decoration: none; }
+  .read-link > span { display: grid; place-items: center; width: 44px; height: 44px; border-radius: 50%; border: 1px solid var(--ink); font-size: 21px; transition: background .2s ease, transform .2s ease; }
+  .read-link:hover > span { background: var(--orange); border-color: var(--orange); transform: rotate(45deg); }
+  .recent-list { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); margin-top: 32px; }
+  .recent-list article { min-width: 0; display: flex; flex-direction: column; padding-inline: 28px; border-left: 1px solid var(--line); }
+  .recent-list article:first-child { padding-left: 0; border: 0; }
+  .recent-list article:last-child { padding-right: 0; }
+  .recent-top { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+  .recent-top .eyebrow { font-size: 9px; }
+  .recent-tag { font-size: 10px; color: var(--muted); }
+  .recent-list h3 { margin: 20px 0 13px; font-family: var(--serif); font-size: 23px; font-weight: 600; line-height: 1.6; }
+  .recent-list p { margin: 0 0 19px; color: var(--muted); font-size: 12px; line-height: 1.95; }
+  .recent-bottom { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: auto; }
+  .recent-bottom > span { font-size: 10px; color: var(--muted); }
+  .recent-bottom > a { display: grid; place-items: center; width: 44px; height: 44px; font-size: 18px; text-decoration: none; }
+  .recent-bottom > a:hover { color: var(--orange-dark); }
+  .archive-link { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-top: 44px; padding: 25px 28px; background: var(--paper-2); text-decoration: none; transition: background .2s ease; }
+  .archive-link > span:first-child { font-family: var(--serif); font-size: 22px; }
+  .archive-link small { margin-left: 20px; font: 11px var(--sans); color: var(--muted); }
+  .archive-right { display: flex; align-items: center; gap: 32px; font-size: 11px; }
+  .archive-right > span { font-size: 23px; }
+  .archive-link:hover { background: var(--orange-soft); }
+  @media (max-width: 1000px) { .featured-copy { padding-left: 28px; } .featured h3 { font-size: 28px; } .recent-list article { padding-inline: 20px; } .masthead-note { width: 215px; } }
+  @media (max-width: 760px) {
+    .masthead { gap: 12px; padding: 28px 0 24px; }
+    h1 { margin-left: -5px; font-size: clamp(103px, 25vw, 176px); }
+    .masthead-note { padding-top: 12px; width: auto; flex-shrink: 0; }
+    .masthead-note p { font-size: 16px; line-height: 1.7; margin: 0; letter-spacing: 0; }
+    .masthead-note .eyebrow { display: none; }
+    .edition-line p { font-size: 10px; letter-spacing: 0; }
+    .edition-line > span { font-size: 9px; }
+    .edition-line > span span { display: none; }
+    .latest { padding-top: 17px; }
+    .section-heading { margin-bottom: 13px; }
+    .section-heading .eyebrow { display: none; }
+    .featured { grid-template-columns: 1fr; padding-bottom: 26px; }
+    .featured-copy { padding: 24px 0 0; }
+    .feature-text { padding: 22px 0 20px; }
+    .featured h3 { font-size: 28px; margin: 13px 0; }
+    .entry-description { font-size: 13px; }
+    .recent-list { grid-template-columns: 1fr; margin-top: 0; }
+    .recent-list article, .recent-list article:first-child, .recent-list article:last-child { padding: 23px 0 18px; border-left: 0; border-bottom: 1px solid var(--line); }
+    .recent-list h3 { font-size: 23px; margin: 14px 0 11px; }
+    .recent-list p { font-size: 13px; margin-bottom: 8px; }
+    .archive-link { margin-top: 28px; padding: 18px; }
+    .archive-link > span:first-child { font-size: 19px; }
+    .archive-link small { display: block; margin: 4px 0 0; }
+    .archive-right { gap: 12px; }
   }
-  @media (max-width: 680px) {
-    .home { min-height: calc(100svh - 198px); }
-    .intro { grid-template-columns: minmax(0, 1fr) 88px; gap: 16px; padding: 35px 0 30px; }
-    .intro-copy { position: relative; z-index: 1; padding-block: 12px; }
-    h1 { font-size: clamp(24px, 6.8vw, 42px); letter-spacing: -.055em; line-height: 1.65; }
-    .intro-art { width: 88px; height: 100px; border-radius: 20px 20px 5px 20px; }
-    .punctuation { width: 38px; height: 38px; border-width: 8px; right: 14px; bottom: 14px; }
-    .intro-art::before, .intro-art::after { width: 130px; height: 130px; }
-    .intro-art::before { top: -90px; left: -65px; }
-    .intro-art::after { top: -78px; left: -77px; }
-    .latest { grid-template-columns: 1fr; gap: 23px; padding: 24px; border-radius: 12px; }
-    .featured h3 { margin-top: 12px; font-size: 23px; }
-    .entry-description { font-size: 14px; }
-    .archive-link { margin-top: 14px; }
-  }
-  @media (max-width: 360px) {
-    .intro { grid-template-columns: minmax(0, 1fr) 64px; }
-    .intro-art { width: 64px; height: 80px; border-radius: 16px 16px 4px 16px; }
-    .punctuation { width: 30px; height: 30px; border-width: 6px; right: 9px; bottom: 16px; }
-    .latest { padding: 20px; }
-  }
+  @media (max-width: 360px) { .masthead { flex-direction: column; align-items: start; gap: 0; padding-top: 16px; } h1 { font-size: clamp(95px, 34vw, 120px); } .masthead-note { padding-top: 6px; } .masthead-note p { font-size: 13px; } .masthead-note br { display: none; } .section-heading .text-link { gap: 6px; } }
 </style>

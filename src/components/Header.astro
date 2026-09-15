@@ -1,26 +1,28 @@
 ---
 import { SITE_TITLE } from '../consts';
 const path = Astro.url.pathname;
-const links = [{ href: '/', label: '首页' }, { href: '/blog/', label: '文章' }, { href: '/about/', label: '关于' }];
+const links = [{ href: '/', label: '首页', number: '01' }, { href: '/blog/', label: '文章', number: '02' }, { href: '/about/', label: '关于', number: '03' }];
 const active = (href: string) => href === '/' ? path === '/' : path === href.slice(0, -1) || path.startsWith(href);
 ---
 <a class="skip-link" href="#main-content">跳到正文</a>
 <header class="site-header">
   <div class="shell nav-wrap">
-    <a class="brand" href="/" aria-label={SITE_TITLE + ' 首页'}>pike<span>.</span></a>
-    <nav aria-label="主导航">{links.map(link => <a href={link.href} aria-current={active(link.href) ? 'page' : undefined}>{link.label}</a>)}</nav>
+    <a class="brand" href="/" aria-label={SITE_TITLE + ' 首页'}><svg width="26" height="26" viewBox="0 0 40 40" aria-hidden="true"><path d="M17 1h6v12.8l9-9 4.2 4.2-9 9H40v6H27.2l9 9-4.2 4.2-9-9V41h-6V28.2l-9 9L3.8 33l9-9H0v-6h12.8l-9-9L8 4.8l9 9Z" fill="currentColor" transform="translate(1 -1) scale(.95)"/></svg><span>PIKE<span class="brand-note"> / 个人博客</span></span></a>
+    <nav aria-label="主导航">{links.map(link => <a href={link.href} aria-current={active(link.href) ? 'page' : undefined}><span class="nav-number" aria-hidden="true">{link.number}</span>{link.label}</a>)}</nav>
   </div>
 </header>
 <style>
   .site-header { position: sticky; top: 0; z-index: 20; background: var(--paper); }
-  .nav-wrap { min-height: 80px; display: flex; justify-content: space-between; align-items: center; gap: 24px; border-bottom: 1px solid var(--line); }
-  .brand { display: inline-flex; align-items: baseline; min-height: 44px; font-size: 27px; font-weight: 700; letter-spacing: -1.2px; text-decoration: none; }
-  .brand > span { color: var(--orange); }
-  nav { display: flex; gap: 32px; align-items: center; }
-  nav a { display: inline-flex; align-items: center; min-height: 44px; color: var(--muted); font-size: 13px; text-decoration: none; position: relative; }
+  .nav-wrap { min-height: 78px; display: flex; justify-content: space-between; align-items: center; gap: 24px; border-bottom: 1px solid var(--line); }
+  .brand { display: inline-flex; align-items: center; gap: 12px; min-height: 44px; font-size: 13px; font-weight: 700; letter-spacing: .05em; text-decoration: none; }
+  .brand svg { color: var(--orange); flex-shrink: 0; }
+  .brand-note { margin-left: 5px; color: var(--muted); font-size: 11px; font-weight: 400; letter-spacing: .04em; }
+  nav { display: flex; gap: 30px; align-items: center; }
+  nav a { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; color: var(--muted); font-size: 12px; text-decoration: none; position: relative; }
+  .nav-number { font: 9px var(--mono); opacity: .8; }
   nav a[aria-current], nav a:hover { color: var(--ink); }
-  nav a[aria-current]::after { content: ''; position: absolute; bottom: 2px; left: 0; right: 0; height: 3px; border-radius: 3px; background: var(--orange); }
+  nav a[aria-current]::after { content: ''; position: absolute; bottom: 3px; left: 0; right: 0; height: 2px; background: var(--orange); }
   .skip-link { position: fixed; top: -100px; left: 16px; z-index: 50; padding: 10px 20px; background: var(--ink); color: white; }
   .skip-link:focus { top: 10px; }
-  @media (max-width: 600px) { .nav-wrap { min-height: 68px; gap: 20px; } nav { gap: 26px; } .brand { font-size: 25px; } }
+  @media (max-width: 760px) { .nav-wrap { min-height: 66px; gap: 12px; } nav { gap: 21px; } .nav-number, .brand-note { display: none; } .brand { gap: 8px; } }
 </style>
