@@ -1,0 +1,191 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { readFile, readdir } from 'node:fs/promises';
+import { comparePosts, postUrl, readingMinutes } from '../src/lib/posts.ts';
+
+const expected = [
+  {
+    "slug": "lost-keys",
+    "title": "钥匙丢了以后",
+    "order": 1
+  },
+  {
+    "slug": "two-watches",
+    "title": "两块表，一只手腕",
+    "order": 2
+  },
+  {
+    "slug": "after-fried-chicken",
+    "title": "吃完炸鸡的第二天",
+    "order": 3
+  },
+  {
+    "slug": "half-hour-workouts",
+    "title": "每次只练半小时，算不算认真健身",
+    "order": 4
+  },
+  {
+    "slug": "tennis-feel",
+    "title": "打不好球，先别急着怪自己",
+    "order": 5
+  },
+  {
+    "slug": "one-less-coffee",
+    "title": "少喝一杯咖啡之后",
+    "order": 6
+  },
+  {
+    "slug": "paris-without-horror",
+    "title": "一首歌是怎么变“恐怖”的",
+    "order": 7
+  },
+  {
+    "slug": "guts-without-a-halo",
+    "title": "格斯不像一个“好人模板”，为什么仍然吸引人",
+    "order": 8
+  },
+  {
+    "slug": "a-word-called-bei",
+    "title": "我只是说了个“呗”",
+    "order": 9
+  },
+  {
+    "slug": "reading-manga-reading-words",
+    "title": "看漫画，顺便认识几个字",
+    "order": 10
+  },
+  {
+    "slug": "project-hail-mary",
+    "title": "硬科幻的爽感，到底来自哪里",
+    "order": 11
+  },
+  {
+    "slug": "after-the-credits",
+    "title": "电影结束后，法庭才开始",
+    "order": 12
+  },
+  {
+    "slug": "ai-without-outsourcing-understanding",
+    "title": "AI 可以帮我做，但我不想自己什么都不懂",
+    "order": 14
+  },
+  {
+    "slug": "not-an-instruction-manual",
+    "title": "我不想和一本说明书聊天",
+    "order": 15
+  },
+  {
+    "slug": "model-and-tools",
+    "title": "同一个模型，换个工具为什么像换了个人",
+    "order": 17
+  },
+  {
+    "slug": "liking-xiaomi",
+    "title": "喜欢一个品牌，和判断它的生意，是两回事",
+    "order": 18
+  },
+  {
+    "slug": "water-on-a-leaf",
+    "title": "绿萝叶尖的一滴水",
+    "order": 20
+  },
+  {
+    "slug": "shenzhen-sun",
+    "title": "深圳的太阳，和别人追着晒的日光浴",
+    "order": 21
+  },
+  {
+    "slug": "living-in-suzhou",
+    "title": "适合旅游的城市，也适合过日子吗",
+    "order": 22
+  }
+];
+const root = new URL('../dist/', import.meta.url);
+const sourceRoot = new URL('../src/content/blog/', import.meta.url);
+const read = file => readFile(new URL(file, root), 'utf8');
+
+async function publicSources() {
+  const files = (await readdir(sourceRoot)).filter(file => /\.mdx?$/.test(file));
+  const sources = await Promise.all(files.map(async file => ({ file, source: await readFile(new URL(file, sourceRoot), 'utf8') })));
+  return sources.filter(({source}) => !/^draft:\s*true\s*$/m.test(source));
+}
+
+test('the selected nineteen essays have complete source prose, dates, tags and unique ordering', async () => {
+  assert.equal(expected.length, 19);
+  assert.equal(new Set(expected.map(post => post.order)).size, 19);
+  assert.deepEqual(expected.map(post => post.order), [1,2,3,4,5,6,7,8,9,10,11,12,14,15,17,18,20,21,22]);
+  const archive = await read('blog/index.html');
+  const rss = await read('rss.xml');
+  const sitemap = await read('sitemap-0.xml');
+  for (const post of expected) {
+    const source = (await readFile(new URL(post.slug + '.md', sourceRoot), 'utf8')).replace(/\r\n/g, '\n');
+    assert.ok(source.startsWith('---\n'), post.slug);
+    assert.ok(source.includes('title: ' + JSON.stringify(post.title)), post.slug);
+    assert.match(source, /^pubDate: 2026-09-15$/m);
+    assert.match(source, /^draft: false$/m);
+    assert.match(source, /^tags: \[.+\]$/m);
+    assert.ok(source.includes('order: ' + post.order + '\n'));
+    const body = source.replace(/^---\r?\n[\s\S]*?\r?\n---\r?\n/, '').trim();
+    assert.ok((body.match(/\p{Script=Han}/gu) ?? []).length >= 300, post.slug + ': full essay, not a placeholder');
+    assert.doesNotMatch(body, /TODO|待补充|文章正文待写/);
+    const html = await read('blog/' + post.slug + '/index.html');
+    assert.equal(html.match(/<h1[^>]*>([^<]+)<\/h1>/)?.[1], post.title, post.slug);
+    assert.ok(html.includes('约 ' + readingMinutes(body) + ' 分钟阅读'), post.slug);
+    assert.ok(html.includes('datetime="2026-09-15T00:00:00.000Z"'), post.slug);
+    const paragraphs = body.split(/\r?\n\s*\r?\n/).filter(p => !/^[#*]/.test(p));
+    assert.ok(paragraphs.length >= 6, post.slug);
+    for (const p of paragraphs) assert.ok(html.includes('<p>' + p + '</p>'), post.slug + ': ' + p.slice(0,35));
+    for (const [name, content] of [['archive', archive], ['RSS', rss], ['sitemap', sitemap]]) {
+      assert.ok(content.includes(postUrl(post.slug)), name + ': ' + post.slug);
+    }
+    assert.ok(archive.includes(post.title));
+    assert.ok(rss.includes(post.title));
+  }
+});
+
+test('all public articles appear once in the archive and feed, while the home stays compact', async () => {
+  const total = (await publicSources()).length;
+  assert.ok(total >= 20);
+  const archive = await read('blog/index.html');
+  const rss = await read('rss.xml');
+  const home = await read('index.html');
+  assert.equal((archive.match(/data-post(?:\s|>)/g) ?? []).length, total);
+  assert.equal((rss.match(/<item>/g) ?? []).length, total);
+  assert.ok(archive.includes('共 ' + total + ' 篇文章'));
+  assert.ok(home.includes('class="article-count"') && home.includes('>' + total + '</span>'));
+  assert.equal((home.match(/<article(?:\s|>)/g) ?? []).length, 4);
+  for (const post of expected.slice(0,4)) assert.ok(home.includes(postUrl(post.slug)), post.slug);
+  assert.ok(!home.includes(postUrl(expected[4].slug)), 'not all nineteen are dumped onto the homepage');
+  for (const content of [archive, rss]) {
+    let cursor = -1;
+    for (const post of expected) {
+      const next = content.indexOf(postUrl(post.slug));
+      assert.ok(next > cursor, 'consistent editorial order: ' + post.slug);
+      cursor = next;
+    }
+  }
+});
+
+test('sorting prioritizes publication date, then same-day order, then stable IDs', () => {
+  const entry = (id, date, order) => ({id, data: {pubDate: new Date(date), order}});
+  const entries = [entry('b', '2026-09-15'), entry('older', '2026-09-14', 0), entry('two', '2026-09-15', 2), entry('a', '2026-09-15'), entry('one', '2026-09-15', 1), entry('newer', '2026-09-16', 100)];
+  assert.deepEqual(entries.sort(comparePosts).map(entry => entry.id), ['newer','one','two','a','b','older']);
+  assert.equal(comparePosts(entries[0], entries[0]), 0);
+});
+
+test('technical essays render navigable headings while short essays stay free of an empty TOC', async () => {
+  for (const slug of ['ai-without-outsourcing-understanding','model-and-tools']) {
+    const html = await read('blog/' + slug + '/index.html');
+    assert.match(html, /aria-label="文章目录"/);
+    const links = [...html.matchAll(/href="#([^"#]+)"[^>]*data-toc-link/g)];
+    assert.equal(links.length, 2);
+    for (const [, id] of links) assert.ok(html.includes('id="' + id + '"'));
+  }
+  assert.match(await read('blog/lost-keys/index.html'), /reading-layout without-toc/);
+});
+
+test('health and plant references link to the checked public sources', async () => {
+  for (const [slug, host] of [['after-fried-chicken','health.clevelandclinic.org'],['one-less-coffee','www.nhlbi.nih.gov'],['water-on-a-leaf','ipm.missouri.edu'],['water-on-a-leaf','www.ars.usda.gov'],['shenzhen-sun','www.who.int']]) {
+    assert.ok((await read('blog/' + slug + '/index.html')).includes('href="https://' + host + '/'));
+  }
+});

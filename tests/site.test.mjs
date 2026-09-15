@@ -103,15 +103,17 @@ test('the old article URL redirects immediately to the new essay and is not inde
   assert.ok(!sitemap.includes(oldArticleUrl));
 });
 
-test('home, archive and RSS expose only the replacement article', async () => {
-  for (const path of ['index.html', 'blog/index.html', 'rss.xml']) {
+test('the archive and RSS preserve the existing essay without resurfacing removed content', async () => {
+  for (const path of ['blog/index.html', 'rss.xml']) {
     const content = await read(path);
     assert.match(content, /现在的小霸王/, path);
     assert.ok(content.includes(articleUrl), path);
+  }
+  for (const path of ['index.html', 'blog/index.html', 'rss.xml']) {
+    const content = await read(path);
     assert.doesNotMatch(content, /这个博客居然真做出来了|前一秒还在聊电影|希望下次打开它/, path);
     assert.ok(!content.includes(oldArticleUrl), path);
   }
-  assert.equal(((await read('rss.xml')).match(/<item>/g) ?? []).length, 1);
 });
 
 test('drafts are excluded from article routes as well as the feed and lists', async () => {

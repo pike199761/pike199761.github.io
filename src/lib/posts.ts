@@ -9,3 +9,11 @@ export function readingMinutes(body = ''): number {
 export function postUrl(id: string): string {
   return '/blog/' + id.split('/').map(encodeURIComponent).join('/') + '/';
 }
+
+/** Stable editorial ordering within a publication day, without inventing timestamps. */
+type SortablePost = { id: string; data: { pubDate: Date; order?: number } };
+export function comparePosts(a: SortablePost, b: SortablePost): number {
+  return b.data.pubDate.valueOf() - a.data.pubDate.valueOf()
+    || (a.data.order ?? 999) - (b.data.order ?? 999)
+    || a.id.localeCompare(b.id, 'en');
+}
