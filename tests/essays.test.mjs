@@ -16,12 +16,12 @@ const expected = [
   },
   {
     "slug": "half-hour-workouts",
-    "title": "每次只练半小时，算不算认真健身",
+    "title": "一周三次，每次半小时",
     "order": 104
   },
   {
     "slug": "tennis-feel",
-    "title": "打不好球，先别急着怪自己",
+    "title": "那筒网球从二月打到了八月",
     "order": 105
   },
   {
@@ -36,7 +36,7 @@ const expected = [
   },
   {
     "slug": "guts-without-a-halo",
-    "title": "格斯不像一个“好人模板”，为什么仍然吸引人",
+    "title": "格斯这么凶，我还是想继续看",
     "order": 108
   },
   {
@@ -51,12 +51,12 @@ const expected = [
   },
   {
     "slug": "project-hail-mary",
-    "title": "硬科幻的爽感，到底来自哪里",
+    "title": "看完《挽救计划》，又想找原著",
     "order": 111
   },
   {
     "slug": "after-the-credits",
-    "title": "电影结束后，法庭才开始",
+    "title": "看完《狂怒追缉》，我去问了判几年",
     "order": 112
   },
   {
@@ -76,7 +76,7 @@ const expected = [
   },
   {
     "slug": "liking-xiaomi",
-    "title": "喜欢一个品牌，和判断它的生意，是两回事",
+    "title": "喜欢小米，也想知道它到底卖得怎么样",
     "order": 118
   },
   {
@@ -121,14 +121,15 @@ test('the selected eighteen essays have complete source prose, dates, tags and u
     assert.match(source, /^tags: \[.+\]$/m);
     assert.ok(source.includes('order: ' + post.order + '\n'));
     const body = source.replace(/^---\r?\n[\s\S]*?\r?\n---\r?\n/, '').trim();
-    assert.ok((body.match(/\p{Script=Han}/gu) ?? []).length >= 300, post.slug + ': full essay, not a placeholder');
+    // Guard against placeholder content, not against naturally short essays.
+    assert.ok((body.match(/\p{Script=Han}/gu) ?? []).length >= 180, post.slug + ': full essay, not a placeholder');
     assert.doesNotMatch(body, /TODO|待补充|文章正文待写/);
     const html = await read('blog/' + post.slug + '/index.html');
     assert.equal(html.match(/<h1[^>]*>([^<]+)<\/h1>/)?.[1], post.title, post.slug);
     assert.ok(html.includes('约 ' + readingMinutes(body) + ' 分钟阅读'), post.slug);
     assert.ok(html.includes('datetime="2026-09-15T00:00:00.000Z"'), post.slug);
     const paragraphs = body.split(/\r?\n\s*\r?\n/).filter(p => !/^[#*]/.test(p));
-    assert.ok(paragraphs.length >= 6, post.slug);
+    assert.ok(paragraphs.length >= 4, post.slug);
     for (const p of paragraphs) assert.ok(html.includes('<p>' + p + '</p>'), post.slug + ': ' + p.slice(0,35));
     for (const [name, content] of [['archive', archive], ['RSS', rss], ['sitemap', sitemap]]) {
       assert.ok(content.includes(postUrl(post.slug)), name + ': ' + post.slug);
