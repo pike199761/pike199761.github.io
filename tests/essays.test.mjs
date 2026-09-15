@@ -10,11 +10,6 @@ const expected = [
     "order": 1
   },
   {
-    "slug": "two-watches",
-    "title": "两块表，一只手腕",
-    "order": 2
-  },
-  {
     "slug": "after-fried-chicken",
     "title": "吃完炸鸡的第二天",
     "order": 3
@@ -110,10 +105,10 @@ async function publicSources() {
   return sources.filter(({source}) => !/^draft:\s*true\s*$/m.test(source));
 }
 
-test('the selected nineteen essays have complete source prose, dates, tags and unique ordering', async () => {
-  assert.equal(expected.length, 19);
-  assert.equal(new Set(expected.map(post => post.order)).size, 19);
-  assert.deepEqual(expected.map(post => post.order), [1,2,3,4,5,6,7,8,9,10,11,12,14,15,17,18,20,21,22]);
+test('the selected eighteen essays have complete source prose, dates, tags and unique ordering', async () => {
+  assert.equal(expected.length, 18);
+  assert.equal(new Set(expected.map(post => post.order)).size, 18);
+  assert.deepEqual(expected.map(post => post.order), [1,3,4,5,6,7,8,9,10,11,12,14,15,17,18,20,21,22]);
   const archive = await read('blog/index.html');
   const rss = await read('rss.xml');
   const sitemap = await read('sitemap-0.xml');
@@ -145,7 +140,7 @@ test('the selected nineteen essays have complete source prose, dates, tags and u
 
 test('all public articles appear once in the archive and feed, while the home stays compact', async () => {
   const total = (await publicSources()).length;
-  assert.ok(total >= 20);
+  assert.ok(total >= 19);
   const archive = await read('blog/index.html');
   const rss = await read('rss.xml');
   const home = await read('index.html');
@@ -155,7 +150,7 @@ test('all public articles appear once in the archive and feed, while the home st
   assert.ok(home.includes('class="article-count"') && home.includes('>' + total + '</span>'));
   assert.equal((home.match(/<article(?:\s|>)/g) ?? []).length, 4);
   for (const post of expected.slice(0,4)) assert.ok(home.includes(postUrl(post.slug)), post.slug);
-  assert.ok(!home.includes(postUrl(expected[4].slug)), 'not all nineteen are dumped onto the homepage');
+  assert.ok(!home.includes(postUrl(expected[4].slug)), 'not all essays are dumped onto the homepage');
   for (const content of [archive, rss]) {
     let cursor = -1;
     for (const post of expected) {
@@ -187,5 +182,14 @@ test('technical essays render navigable headings while short essays stay free of
 test('health and plant references link to the checked public sources', async () => {
   for (const [slug, host] of [['after-fried-chicken','health.clevelandclinic.org'],['one-less-coffee','www.nhlbi.nih.gov'],['water-on-a-leaf','ipm.missouri.edu'],['water-on-a-leaf','www.ars.usda.gov'],['shenzhen-sun','www.who.int']]) {
     assert.ok((await read('blog/' + slug + '/index.html')).includes('href="https://' + host + '/'));
+  }
+});
+
+
+test('the withdrawn watch essay is absent from the public site', async () => {
+  await assert.rejects(readFile(new URL('two-watches.md', sourceRoot)), { code: 'ENOENT' });
+  await assert.rejects(read('blog/two-watches/index.html'), { code: 'ENOENT' });
+  for (const file of ['index.html', 'blog/index.html', 'rss.xml', 'sitemap-0.xml']) {
+    assert.doesNotMatch(await read(file), /two-watches|两块表，一只手腕/);
   }
 });
