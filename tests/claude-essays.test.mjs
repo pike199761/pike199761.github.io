@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile, readdir } from 'node:fs/promises';
-import { postUrl, readingMinutes } from '../src/lib/posts.ts';
+import { postUrl, readingMinutes, comparePosts } from '../src/lib/posts.ts';
 
 const expected = [
   {
@@ -82,6 +82,19 @@ const read = file => readFile(new URL(file, root), 'utf8');
 const source = async slug => (await readFile(new URL(slug + '.md', sourceRoot), 'utf8')).replace(/\r\n/g, '\n');
 const bodyOf = content => content.replace(/^---\n[\s\S]*?\n---\n/, '').trim();
 
+async function sortedPublicSources() {
+  const files = (await readdir(sourceRoot)).filter(file => /\.mdx?$/.test(file));
+  const entries = await Promise.all(files.map(async file => {
+    const content = await readFile(new URL(file, sourceRoot), 'utf8');
+    return { id: file.replace(/\.mdx?$/, ''), data: {
+      pubDate: new Date(content.match(/^pubDate:\s*(.+)$/m)[1]),
+      order: Number(content.match(/^order:\s*(\d+)$/m)?.[1] ?? 999),
+      draft: /^draft:\s*true\s*$/m.test(content),
+    } };
+  }));
+  return entries.filter(entry => !entry.data.draft).sort(comparePosts);
+}
+
 test('fourteen new essays have finished prose, publication metadata and distinct editorial order', async () => {
   assert.equal(expected.length, 14);
   assert.equal(new Set(expected.map(post => post.slug)).size, 14);
@@ -108,28 +121,33 @@ test('fourteen new essays have finished prose, publication metadata and distinct
   }
 });
 
-test('the second batch appears first in the archive and RSS, with only four essays on the home', async () => {
+test('the second batch keeps its editorial order as new posts arrive, with only four essays on the home', async () => {
   const archive = await read('blog/index.html');
   const rss = await read('rss.xml');
   const home = await read('index.html');
   const sitemap = await read('sitemap-0.xml');
   const cards = [...archive.matchAll(/<a\b[^>]*data-post(?:\s|>)[\s\S]*?<\/a>/g)];
   const items = [...rss.matchAll(/<item>[\s\S]*?<\/item>/g)];
-  assert.equal(cards.length, 33);
-  assert.equal(items.length, 33);
-  assert.ok(archive.includes('共 33 篇文章'));
+  const sorted = await sortedPublicSources();
+  assert.ok(sorted.length >= 33, 'the original thirty-three essays remain public');
+  assert.equal(cards.length, sorted.length);
+  assert.equal(items.length, sorted.length);
+  assert.ok(archive.includes('共 ' + sorted.length + ' 篇文章'));
   assert.equal((home.match(/<article(?:\s|>)/g) ?? []).length, 4);
   for (const [index, post] of expected.entries()) {
     const url = postUrl(post.slug);
-    assert.ok(cards[index][0].includes(url), post.slug + ': archive position');
-    assert.ok(items[index][0].includes(url), post.slug + ': feed position');
+    const position = sorted.findIndex(entry => entry.id === post.slug);
+    assert.ok(position >= 0, post.slug + ': original essay retained');
+    if (index > 0) assert.ok(position > sorted.findIndex(entry => entry.id === expected[index - 1].slug), post.slug + ': original editorial order');
+    assert.ok(cards[position][0].includes(url), post.slug + ': archive position');
+    assert.ok(items[position][0].includes(url), post.slug + ': feed position');
     assert.equal(items.filter(([item]) => item.includes(url)).length, 1);
     assert.ok(sitemap.includes(url), post.slug + ': sitemap');
-    assert.equal(home.includes(url), index < 4, post.slug + ': compact home');
+    assert.equal(home.includes(url), position < 4, post.slug + ': compact home');
   }
 });
 
-test('all thirty-three public sources have a route and occur exactly once in each discovery surface', async () => {
+test('all public sources, including the original thirty-three, have a route and occur exactly once in each discovery surface', async () => {
   const files = (await readdir(sourceRoot)).filter(file => /\.mdx?$/.test(file));
   const archive = await read('blog/index.html');
   const rss = await read('rss.xml');
@@ -150,7 +168,10 @@ test('all thirty-three public sources have a route and occur exactly once in eac
     const html = await read('blog/' + slug + '/index.html');
     assert.match(html, /<h1\b/);
   }
-  assert.equal(total, 33);
+  assert.ok(total >= 33, 'the original thirty-three sources remain');
+  assert.equal(cards.length, total);
+  assert.equal(items.length, total);
+  assert.equal(locations.filter(location => location.includes('/blog/') && !location.endsWith('/blog/')).length, total);
 });
 
 test('the reflective essays retain uncertainty rather than inventing completed experiences', async () => {
