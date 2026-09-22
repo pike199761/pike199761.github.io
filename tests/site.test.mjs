@@ -225,8 +225,9 @@ test('portrait masks fade images, keep captions readable and do not invent photo
     assert.ok(alphas.some(alpha => alpha === 255), src);
   }
   assert.doesNotMatch(component, /mix-blend-mode: multiply/);
-  assert.match(component, /background: var\(--orange\)/);
-  assert.match(component, /--muted: var\(--ink\)/);
+  assert.match(component, /background: var\(--paper-2\)/);
+  assert.match(component, /color: var\(--orange\)/);
+  assert.match(component, /color: var\(--orange-dark\)/);
   assert.match(component, /-webkit-mask-image: linear-gradient/);
   assert.match(component, /mask-image: linear-gradient/);
   assert.match(component, /<\/div>\s*<\/div>\s*<\/div>\s*<figcaption>/);

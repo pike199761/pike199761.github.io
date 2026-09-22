@@ -35,14 +35,14 @@ import { following } from '../data/following';
 </section>
 
 <style>
-  .following { --muted: var(--ink); --line: #24251f40; margin-top: 68px; padding: 28px 34px 12px; color: var(--ink); background: var(--orange); }
+  .following { --line: #24251f33; margin-top: 68px; padding: 28px 34px 12px; color: var(--ink); background: var(--paper-2); }
   .following-heading { display: flex; align-items: center; justify-content: space-between; gap: 20px; margin-bottom: 20px; padding-bottom: 19px; border-bottom: 1px solid var(--line); }
   .following-heading h2 { display: flex; align-items: center; gap: 12px; margin: 0; font: 600 25px/1.5 var(--serif); }
-  .following-heading h2 > span { font: 32px/1 Arial, sans-serif; }
+  .following-heading h2 > span { color: var(--orange); font: 32px/1 Arial, sans-serif; }
   .following-heading p { margin: 0; font-size: 11px; letter-spacing: .1em; }
   .following-grid { display: grid; grid-template-columns: .92fr 1fr 1fr 1.25fr; gap: 24px; }
   figure { margin: 0; min-width: 0; }
-  /* Separate masks keep the original skin tones clear, fading only the lower image into orange. */
+  /* Separate masks keep the original skin tones clear, fading only the lower image into the paper background. */
   .portrait-stage { height: 210px; display: flex; align-items: flex-end; justify-content: center; }
   .portrait-fade { width: 160px; max-width: 100%; -webkit-mask-image: linear-gradient(to bottom, #000 0%, #000 62%, #000e 73%, #0005 90%, transparent 100%); mask-image: linear-gradient(to bottom, #000 0%, #000 62%, #000e 73%, #0005 90%, transparent 100%); }
   .portrait-cutout { -webkit-mask-image: var(--portrait-mask, none); mask-image: var(--portrait-mask, none); -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat; -webkit-mask-size: 100% 100%; mask-size: 100% 100%; }
@@ -55,7 +55,7 @@ import { following } from '../data/following';
   .person-line h3 { margin: 0; font-size: 17px; font-weight: 600; line-height: 1.5; }
   .person-line > span { font-size: 10px; }
   .person-caption { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; padding: 9px 0 13px; border-bottom: 1px solid var(--line); font: 9px/1.6 var(--mono); letter-spacing: .05em; }
-  .person-caption > span:last-child { font-size: 10px; }
+  .person-caption > span:last-child { color: var(--orange-dark); font-size: 10px; }
   .photo-credits { margin-top: 5px; font-size: 11px; line-height: 1.9; }
   summary { width: fit-content; min-height: 44px; align-content: center; cursor: pointer; text-underline-offset: 4px; }
   summary:hover { text-decoration: underline; }

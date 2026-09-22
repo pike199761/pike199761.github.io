@@ -84,7 +84,10 @@ const tags = [...new Set(posts.flatMap(post => post.data.tags))];
   .index-count { display: flex; align-items: baseline; gap: 12px; }
   .index-count strong { font: 400 64px/1 var(--serif); color: var(--ink); }
   .archive-layout { display: grid; grid-template-columns: 210px minmax(0, 1fr); gap: 65px; align-items: start; }
-  .archive-tools { position: sticky; top: 112px; max-height: calc(100dvh - 136px); overflow-y: auto; scrollbar-width: thin; }
+  .archive-tools { position: sticky; top: 112px; max-height: calc(100dvh - 136px); overflow-y: auto; scrollbar-width: thin; scrollbar-color: var(--line) transparent; }
+  .archive-tools::-webkit-scrollbar { width: 4px; }
+  .archive-tools::-webkit-scrollbar-track { background: transparent; }
+  .archive-tools::-webkit-scrollbar-thumb { background: var(--line); border-radius: 999px; }
   .filter-label { margin: 0 0 15px; font-size: 11px; }
   .search-box { display: flex; align-items: center; gap: 10px; padding: 0 10px; min-height: 44px; border: 1px solid var(--line); background: transparent; color: var(--muted); }
   .search-box:focus-within { outline: 2px solid var(--orange-dark); outline-offset: 2px; }
@@ -103,11 +106,11 @@ const tags = [...new Set(posts.flatMap(post => post.data.tags))];
   .list-heading .eyebrow { font-size: 10px; }
   .post-row { display: grid; grid-template-columns: 34px minmax(0, 1fr) 22px; align-items: start; gap: 20px; padding: 29px 0; border-bottom: 1px solid var(--line); text-decoration: none; }
   .post-number { padding-top: 1px; color: var(--muted); font: 11px/1.8 var(--mono); }
-  .post-meta { display: flex; flex-wrap: wrap; gap: 18px; color: var(--muted); font-size: 10px; }
+  .post-meta { display: flex; flex-wrap: wrap; gap: 18px; color: var(--muted); font-size: 11px; }
   .post-copy h2 { margin: 10px 0 11px; font-family: var(--serif); font-size: 25px; font-weight: 600; line-height: 1.6; }
   .post-copy p { margin: 0; max-width: 680px; color: var(--muted); font-size: 13px; line-height: 1.95; }
   .tags { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 15px; }
-  .tags .pill { font-size: 10px; }
+  .tags .pill { font-size: 11px; }
   .tags .pill::before { content: '#'; margin-right: 4px; }
   .arrow { padding-top: 39px; font-size: 21px; transition: transform .2s ease; }
   .post-row:hover .arrow { transform: translate(3px, -3px); color: var(--orange-dark); }
