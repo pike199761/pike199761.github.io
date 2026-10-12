@@ -47,3 +47,24 @@ test('weekly slugs stay unique and agree with their publication dates, with no p
     }
   }
 });
+
+test('the October 12 weekly essay renders its date, coverage and complete personal voice', async () => {
+  const slug = 'weekly-2026-10-12';
+  const source = (await readFile(new URL(slug + '.md', sourceRoot), 'utf8')).replace(/\r\n/g, '\n');
+  assert.match(source, /^pubDate: 2026-10-12$/m);
+  assert.match(source, /^draft: false$/m);
+  assert.match(source, /^tags: \["随笔",/m);
+  const title = source.match(/^title: "(.+)"$/m)[1];
+  assert.equal(title, '双反进步了一点，书还没翻开');
+  const body = source.replace(/^---\n[\s\S]*?\n---\n/, '').trim();
+  const html = await read('blog/' + slug + '/index.html');
+  assert.ok(html.includes('<h1 class="post-title">' + title + '</h1>') || html.match(/<h1[^>]*>([^<]+)<\/h1>/)?.[1] === title);
+  assert.match(html, /datetime="2026-10-12T00:00:00.000Z"/);
+  assert.match(html, /2026 年 9 月 30 日—10 月 12 日/);
+  for (const paragraph of body.split(/\n\s*\n/)) assert.ok(html.includes('<p>' + paragraph + '</p>'), paragraph);
+  assert.ok(html.includes('约 ' + readingMinutes(body) + ' 分钟阅读'));
+  assert.match(html, /reading-layout without-toc/);
+  assert.match(body, /双反进步了/);
+  assert.match(body, /C 老师回复说/);
+  assert.match(body, /书还没翻开/);
+});
